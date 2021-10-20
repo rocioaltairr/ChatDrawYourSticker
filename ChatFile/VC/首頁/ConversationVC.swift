@@ -12,67 +12,71 @@ import FirebaseStorage
 import JGProgressHUD
 class ConversationVC: UIViewController {
 
+    
     @IBOutlet weak var tbvMain: UITableView!
     @IBOutlet weak var searchBar: UISearchBar!
     
-    var mainUser : User?
-    var users = [User]()
-    var converstions = [Conversation]()
-    let hud = JGProgressHUD(style: .dark)
-    var nsCache = NSCache<NSString, UIImage>()
+    var currentUser : User?
+    var otherUsers:[User]? = []
     
-
+    let hud = JGProgressHUD(style: .dark)
+    var nsCache = NSCache<NSString, ImageCache>()
+    private var messages = [Message]()
+    var conversations:[Conversation]?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         hud.textLabel.text = "Loading"
         hud.show(in: self.view)
         searchBar.textField?.font = UIFont.systemFont(ofSize: 12)
-        fetchUserID()
         
         self.tbvMain.allowsSelection = true
         self.tbvMain.delegate = self
         self.tbvMain.dataSource = self
         self.tbvMain.register(UINib(nibName: "ConversationsTbvCell", bundle: nil), forCellReuseIdentifier: "ConversationsTbvCell")
+        fetchCurrentUser()
         
     }
-    // 抓取使用者
-    func fetchUserID() {
+    
+    override func viewWillAppear(_ animated: Bool) {
+        hud.dismiss()
+        fetchUserAndLastMessage()
+    }
+    
+    func fetchUserAndLastMessage() {
+        UserManager.fetchConversations {[weak self] con in
+            guard let self = self else { return }
+            self.hud.textLabel.text = "Loading"
+            self.hud.show(in: self.view)
+            
+            self.conversations = con
+            self.conversations = self.conversations?.sorted(by: {$0.message.timestamp.dateValue() > $1.message.timestamp.dateValue()}) // 排序最早的在前面
+            self.tbvMain.reloadData()
+        }
+    }
+    
+    func fetchCurrentUser() {
         guard let uid = Auth.auth().currentUser?.uid else { return }
-        UserManager.fetchUser(whitUid: uid) { user in
-            self.mainUser = user
-            self.fetchOtherUsers()
+        UserManager.fetchUser(whitUid: uid) {[weak self] user in
+            guard let self = self else { return }
+            self.currentUser = user
             let ref = Storage.storage().reference().child(user.profileImageUrl)
             ref.getData(maxSize: 1 * 1024 * 1024) { data, error in
                 if error != nil {
                     print("DEBUG: 取得 Storage 圖片失敗")
                 } else {
-                    let image = UIImage(data: data!)
-                    self.nsCache.setObject(image!,
-                                                   forKey: "currentUserImage")
-                    //self.imgSender = image
+                    let cacheImage = ImageCache()
+                    cacheImage.image = UIImage(data: data!)
+                    self.nsCache.setObject(cacheImage, forKey: "currentUserImage" as NSString)
                 }
             }
         }
     }
-    
-    // MARK: - 抓取其他使用者資料
-    func fetchOtherUsers() {
-        UserManager.fetchOtherUsers { users in
-            self.users = users
-            //print("DEBUG: User is new message controller \(users)")
-            self.tbvMain.reloadData()
-        }
-    }
-//    // MARK: - 抓取新聊天訊息
-//    func fetchNewMessages() {
-//        UserManager.fetchNewMessage { converstions in
-//            self.converstions = converstions
-//            self.tbvMain.reloadData()
-//        }
-//    }
-    
+
+
     @IBAction func action_MyProfile(_ sender: Any) {
         let vc = MyProfileVC()
+        vc.nsCache = self.nsCache
         self.navigationController?.pushViewController(vc, animated: true)
     }
     
@@ -88,12 +92,18 @@ class ConversationVC: UIViewController {
     @objc func dismissKeyBoard() {
         self.view.endEditing(true)
     }
-
+    
 }
 
 extension ConversationVC: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return users.count
+        if conversations != nil {
+            hud.dismiss()
+            return conversations!.count
+            
+        } else {
+            return 0
+        }
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -102,46 +112,53 @@ extension ConversationVC: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ConversationsTbvCell", for: indexPath) as! ConversationsTbvCell
-        cell.lbName.text = users[indexPath.row].username
-        let ref = Storage.storage().reference().child(users[indexPath.row].profileImageUrl)
-        ref.getData(maxSize: 1 * 1024 * 1024) { data, error in
-            if error != nil {
-                print("DEBUG: 取得 Storage 圖片失敗")
-            } else {
-                
-                DispatchQueue.main.async {
-                    cell.vwImg.image = UIImage(data: data!)
-                    self.nsCache.setObject(UIImage(data: data!)!,
-                                                   forKey: "otherUserImage")
-                    self.hud.dismiss()// << store result
+        
+        cell.lbName.text = conversations?[indexPath.row].user.username
+        cell.lbMessage.text = conversations?[indexPath.row].message.text
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "HH:mm"
+        cell.lbTime.text = dateFormatter.string(from: conversations?[indexPath.row].message.timestamp.dateValue() ?? Date())
+        
+   
+        if let cachedVersion = nsCache.object(forKey: "otherUserImage\(self.conversations![indexPath.row].user.uid)" as NSString) { // 如果cache 沒照片再去抓
+
+            cell.vwImg.image = cachedVersion.image
+        } else {
+            cell.vwImg.image = nil
+            let ref = Storage.storage().reference().child(conversations![indexPath.row].imgUrl)
+            ref.getData(maxSize: 1 * 1024 * 1024) { data, error in
+                if error != nil {
+                    print("DEBUG: 取得 Storage 圖片失敗")
+                } else {
                     
+                    DispatchQueue.main.async {
+                        cell.vwImg.image = UIImage(data: data!)
+                        let cacheImage = ImageCache()
+                        cacheImage.image = UIImage(data: data!)
+                        if let cons = self.conversations {
+                            self.nsCache.setObject(cacheImage, forKey: "otherUserImage\(cons[indexPath.row].user.uid)" as NSString)
+                        }
+                    }
                 }
             }
         }
+
         cell.selectionStyle = .none
+        if indexPath.row == conversations!.count - 1 {
+            self.hud.dismiss()
+        }
         return cell
     }
     
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        showChatCVC(forUser: users[indexPath.row])
-//        let vc = ChatVC()
-//        //vc.nsCache = self.nsCache
-//        //vc.currentUser = mainUser
-//        vc.otherUser = users[indexPath.row]
-//        self.navigationController?.pushViewController(vc, animated: true)
-        
-    }
-    
-    func showChatCVC(forUser user:User) {
-        let cv = ChatCVC(user: user)
+
+        let cv = ChatMessageKitVC()
+        cv.currentUser = currentUser
+        cv.otherUser = conversations?[indexPath.row].user
         cv.nsCache = self.nsCache
-        cv.currentUser = mainUser
-        cv.otherUser = user
-        
         self.navigationController?.pushViewController(cv, animated: true)
     }
-
 }
 
 
@@ -150,7 +167,6 @@ extension UISearchBar {
         if #available(iOS 13.0, *) {
             return self.searchTextField
         } else {
-            // Fallback on earlier versions
             for view in (self.subviews[0]).subviews {
                 if let textField = view as? UITextField {
                     return textField
@@ -160,3 +176,4 @@ extension UISearchBar {
         return nil
     }
 }
+

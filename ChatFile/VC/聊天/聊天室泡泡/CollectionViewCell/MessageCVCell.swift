@@ -35,13 +35,18 @@ class MessageCVCell: UICollectionViewCell {
         tv.isScrollEnabled = false
         tv.isEditable = false
         tv.text = "Some test"
+        
+        tv.translatesAutoresizingMaskIntoConstraints = true
+        tv.sizeToFit()
+        
+        
         return tv
     }()
     
-    private let lbReadStatus: UILabel = {
+    private let lbDate: UILabel = {
         let lb = UILabel()
         lb.text = "Read"
-        lb.font = UIFont.systemFont(ofSize: 16)
+        lb.font = UIFont.systemFont(ofSize: 11)
         lb.textColor = .lightGray
         return lb
     }()
@@ -61,7 +66,7 @@ class MessageCVCell: UICollectionViewCell {
         profileImageView.anchor(left: leftAnchor,bottom: bottomAnchor, paddingLeft: 12, paddingBottom: 5)
         profileImageView.setDimensions(height: 30, width: 30)
         profileImageView.layer.cornerRadius = 15
-
+        
         // 聊天泡泡
         addSubview(bubbleContainer)
         bubbleContainer.layer.cornerRadius = 12
@@ -73,13 +78,23 @@ class MessageCVCell: UICollectionViewCell {
         bubbleRightAnchor = bubbleContainer.rightAnchor.constraint(equalTo: rightAnchor, constant: -12)
         bubbleRightAnchor.isActive = false
         
-        // 輸入框
+        // 文字
         bubbleContainer.addSubview(textView)
+        
+        textView.text = message?.text
+        let fixedWidth = textView.frame.size.width
+        textView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
+        let newSize = textView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
+        var newFrame = textView.frame
+        newFrame.size = CGSize(width: max(newSize.width, fixedWidth), height: newSize.height)
+        textView.frame = newFrame
+        
+        // textView.he
         textView.anchor(top: bubbleContainer.topAnchor, left: bubbleContainer.leftAnchor, bottom: bubbleContainer.bottomAnchor, right: bubbleContainer.rightAnchor, paddingTop: 5, paddingLeft: 12, paddingBottom: 5, paddingRight: 12)
         
-        addSubview(lbReadStatus)
+        addSubview(lbDate)
         
-
+        
     }
     
     func configure() {
@@ -90,33 +105,41 @@ class MessageCVCell: UICollectionViewCell {
         textView.textColor = viewModel.messageTextColor
         textView.text = message.text
         
+        let fixedWidth = textView.frame.size.width
+        textView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
+        let newSize = textView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat.greatestFiniteMagnitude))
+        var newFrame = textView.frame
+        newFrame.size = CGSize(width: max(newSize.width, fixedWidth), height: newSize.height)
+        textView.frame = newFrame
+        
+        
         bubbleLeftAnchor.isActive = viewModel.leftAnchorActive
         bubbleRightAnchor.isActive = viewModel.rightAnchorActive
-        
         profileImageView.isHidden = viewModel.shouldHideProfileImage
-
         
-        for view in self.subviews{
-            if view == lbReadStatus {
-                view.removeFromSuperview()
-            }
-        }
+        //        for view in self.subviews{
+        //            if view == lbDate {
+        //                view.removeFromSuperview()
+        //            }
+        //        }
         
         
-        addSubview(lbReadStatus)
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "HH:mm"
+        let strDate = dateFormatter.string(from: (message.timestamp.dateValue()))
+        lbDate.text = strDate
+        
         if viewModel.leftAnchorActive == true {
-            lbReadStatus.anchor(left:bubbleContainer.rightAnchor,bottom: bubbleContainer.bottomAnchor,paddingLeft: 8,paddingBottom: 5)
-            lbReadStatus.isHidden = true
-
+            lbDate.anchor(left:bubbleContainer.rightAnchor,bottom: bubbleContainer.bottomAnchor,paddingLeft: 5,paddingBottom: 5)
         } else {
-            lbReadStatus.anchor(bottom: bubbleContainer.bottomAnchor, right:bubbleContainer.leftAnchor,paddingBottom: 5, paddingRight: 8)
-            if message.isRead == true {
-                lbReadStatus.isHidden = false
-            } else {
-                lbReadStatus.isHidden = true
-            }
+            lbDate.anchor(bottom: bubbleContainer.bottomAnchor, right:bubbleContainer.leftAnchor,paddingBottom: 5, paddingRight: 5)
+            
         }
 
+       // self.setDimensions(height: newSize.height, width: self.frame.width)
+        //self.frame = CGRect(x: 0, y: 0, width: self.frame.width, height: newSize.height)
+        //CGSize(width: self.frame.width, height: newSize.height)
+        //self.frame =  CGSize(width: self.frame.width, height: newSize.height)
     }
     
     required init?(coder: NSCoder) {

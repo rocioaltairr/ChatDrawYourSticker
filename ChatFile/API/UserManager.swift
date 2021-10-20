@@ -9,7 +9,58 @@ import Firebase
 import FirebaseFirestore
 import FirebaseAuth
 
-struct UserManager {
+class UserManager {
+    //static let shared = UserManager()
+    // 最最最最最新
+    static func fetchNewMessage(forUser user:User, completion: @escaping([MessageFirebase]) -> Void) {
+        var messages = [MessageFirebase]()
+        
+        guard let currentUid = Auth.auth().currentUser?.uid else { return }
+        COLLECTION_MESSAGES.document(currentUid).collection(user.uid).order(by: "timestamp").addSnapshotListener { (snapshot, error) in
+            messages.removeAll()
+            snapshot?.documents.forEach({ (document) in
+                let newMessages = document.data()
+                messages.append(MessageFirebase(dictionary: newMessages))
+            })
+            completion(messages)
+            
+        }
+    }
+    // MARK: - 抓取各個第一筆的conversation
+    static func fetchConversations(completion: @escaping([Conversation]) -> Void) {
+        var conversations = [Conversation]()
+        guard let currentUid = Auth.auth().currentUser?.uid else { return } // 只拿取某個user的 message
+        // 抓取使用者全部的聊天紀錄並用時間先後做排序
+        let query = COLLECTION_MESSAGES.document(currentUid).collection("recent-messages").order(by: "timestamp")
+        
+        query.addSnapshotListener { (snapshot, error) in // 每次database有增加東西就觸發
+            conversations.removeAll()
+            snapshot?.documentChanges.forEach({ change in
+                let newMessages = change.document.data()
+                let message = MessageFirebase(dictionary: newMessages)
+                
+                var whith:String = ""
+                if message.isFromCurrentUser == true {
+                    whith = newMessages["toID"] as! String
+                } else {
+                    whith =  newMessages["fromID"] as! String
+                }
+                // 抓取新聊天記錄中對方的姓名和對話
+                self.fetchUser(whitUid: whith) { user in
+                    let conversation = Conversation(user: user, message: message,imgUrl:user.profileImageUrl)
+                    conversations.append(conversation)
+                    if conversation.user.uid != currentUid { // 只能顯示他人訊息
+                        //conversations.insert(conversation, at: 0) // 最早的要在上面
+                        
+                    }
+                    
+                    completion(conversations)
+                }
+                
+            })
+        }
+    }
+    
     // MARK: - 抓取自己使用者
     static func fetchUsers(completion: @escaping([User]) -> Void) {
         COLLECTION_USERS.getDocuments { (snapshot, error) in
@@ -35,6 +86,7 @@ struct UserManager {
     
     // MARK: - 抓取其他使用者
     static func fetchOtherUsers(completion: @escaping([User]) -> Void) {
+        
         COLLECTION_USERS.getDocuments { (snapshot, error) in
             var users = [User]()
             snapshot?.documents.forEach({ (document) in
@@ -58,98 +110,20 @@ struct UserManager {
             let newMessages = document.data()
             messages.append(Message(dictionary: newMessages))
         })
-        completion(messages)
-        // 這邊更新已讀 : 代表我看對對骯訊息 so 去改 對方/我的/訊息 database
-//        COLLECTION_MESSAGES.document(user.uid).collection(currentUid).order(by: "timestamp").getDocuments { (snapshot, error) in
-//            snapshot?.documents.forEach({ (document) in
-//                let newMessages = Message(dictionary: document.data())
-//                if newMessages.isRead == false {
-//                    document.reference.updateData([
-//                        "isRead": true
-//                    ])
-//                }
-//            })
-//        }
+            completion(messages)
+            
         }
     }
-    
-    // MARK: - 抓取聊天訊息
-    static func fetchMessage2(forUser user:User, completion: @escaping([Message],_ type:String,_ messageId:String) -> Void) {
-            var messages = [Message]()
-            var dataType = ""
-            var documentId = ""
-            guard let currentUid = Auth.auth().currentUser?.uid else { return }
-        COLLECTION_MESSAGES.document(currentUid).collection(user.uid).order(by: "timestamp").addSnapshotListener { (snapshot, error) in
-                snapshot?.documentChanges.forEach({ (change) in
-                    if change.type == .added {
-                        var changedMessages = Message(dictionary: change.document.data())
-                        dataType = "added"
-                        changedMessages.messageId = change.document.documentID
-                        documentId = change.document.documentID
-                        messages.append(changedMessages)
-                    } else if change.type == .modified {
-                        var changedMessages = Message(dictionary: change.document.data())
-                        changedMessages.messageId = change.document.documentID
-                        documentId = change.document.documentID
-                        if changedMessages.isRead == true {
-                            messages.removeLast()
-                            messages.append(changedMessages)
-                        }
-                        dataType = "modified"
-                        print("Modified message: \(change.document.data())")
-                    }
-                })
-            
-                completion(messages, dataType, documentId)
-            
-                // 這邊更新已讀 : 代表我看對對骯訊息 so 去改 對方/我的/訊息 database
-                COLLECTION_MESSAGES.document(user.uid).collection(currentUid).order(by: "timestamp").getDocuments { (snapshot, error) in
-                    snapshot?.documents.forEach({ (document) in
-                        let newMessages = Message(dictionary: document.data())
-                        if newMessages.isRead == false {
-                            document.reference.updateData([
-                                "isRead": true
-                            ])
-                        }
-                    })
-                }
-            }
-        }
-    
-    
-    // MARK: - 抓取新聊天訊息(未讀的)
-    static func fetchNewMessage(completion: @escaping([Conversation]) -> Void) {
-        var conversations = [Conversation]()
-        guard let currentUid = Auth.auth().currentUser?.uid else { return } // 只拿取某個user的 message
-        let query = COLLECTION_MESSAGES.document(currentUid).collection("recent-messages").order(by: "timestamp")
-        
-        query.addSnapshotListener { (snapshot, error) in // 每次database有增加東西就觸發
-            // 抓取使用者全部的聊天紀錄並用時間先後做排序
-            snapshot?.documentChanges.forEach({ change in
-                let newMessages = change.document.data()
-                let message = Message(dictionary: newMessages)
-                
-                // 抓取新聊天記錄中對方的姓名和對話
-                self.fetchUser(whitUid: newMessages["fromID"] as! String) { user in
-                    let conversation = Conversation(user: user, message: message,imgUrl:user.profileImageUrl)
-                    if conversation.user.uid != currentUid { // 只能顯示他人訊息
-                        conversations.append(conversation)
-                    }
-                    completion(conversations)
-                }
-            })
-        }
-    }
-    
     // MARK: - 上傳聊天訊息
-    static func uploadMessage(_ message: String, to user: User, completion: ((Error?) -> Void)?) {
+    static func uploadMessage(_ message: String, to user: User,fileName:String, completion: ((Error?) -> Void)?) {
         guard let currentUid = Auth.auth().currentUser?.uid else { return }
         let data = ["text": message,
                     "fromID":currentUid,
                     "toID":user.uid,
                     "timestamp": Timestamp(date: Date()),
                     "isRead":false,
-                    "messageId":""] as [String:Any]
+                    "messageId":"",
+                    "mssageImageUrl":fileName] as [String:Any]
         COLLECTION_MESSAGES.document(currentUid).collection(user.uid).addDocument(data: data) { _ in
             COLLECTION_MESSAGES.document(user.uid).collection(currentUid).addDocument(data: data,completion: completion)
             
@@ -164,19 +138,16 @@ struct UserManager {
     typealias UploadPictureCompletion = (Result<String, Error>) -> Void
     
     // MARK: - 上傳照片訊息
-    static func uploadMessagePhoto(with data: Data,fileName: String, completion: @escaping UploadPictureCompletion) {
-        
-        Storage.storage().reference().child("message_images/\(fileName)").putData(data,metadata: nil) { (metadate, error) in
-            print("Failed to upload data to firebase for picture.")
-            return
-        }
-        Storage.storage().reference().child("images/\(fileName)").downloadURL { (url, error) in
-            guard let url = url else {
-                print("Failed to get download url")
-                return
+    static func uploadMessagePhoto(with data: Data,fileName: String, completion: ((Error?) -> Void)?) {
+        // 上傳照片
+        let ref = Storage.storage().reference(withPath: "message_images/\(fileName)")
+        ref.putData(data, metadata: nil) { (meta, error) in
+            if error != nil {
+                print("DEBUG: 上傳User 大頭照到firebase storage 失敗: \(String(describing: error?.localizedDescription))")
+                AlertUtil.showMessage(message: "上傳大頭照到失敗 \(String(describing: error?.localizedDescription))")
             }
-            let strUrl = url.absoluteString
-            print("download url returned: \(strUrl)")
+            
+            return
         }
     }
     
@@ -208,9 +179,9 @@ class StorageManager {
     static let shared = StorageManager()
     
     private let storage = Storage.storage().reference()
-
+    
     public typealias UploadPictureCompletion = (Result<String, Error>)
-
+    
     public func uploadProfilePicture(with data: Data, fileName: String, completion: UploadPictureCompletion ) {
         storage.child("images/\(fileName)").putData(data, metadata: nil,completion: { (meta, error) in
             guard error == nil else {

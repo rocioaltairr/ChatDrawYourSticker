@@ -27,6 +27,7 @@ struct DatabaseManager {
             COLLECTION_MESSAGES.document(currentUid).collection("recent-messages").document(user.uid).setData(data)
             
             COLLECTION_MESSAGES.document(user.uid).collection("recent-messages").document(currentUid).setData(data)
+            COLLECTION_MESSAGES.document(currentUid).collection("recent-messages").document(user.uid).setData(data)
             
             // .setData will overwrite .addDocument will not
         }

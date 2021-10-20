@@ -79,8 +79,14 @@ class CustomInputAccessoryView: UIView {
     }
     
     @objc func handleSendMessage() { // 送出訊息button
-        guard let message = messageInputTextView.text else { return }
-        delegate?.inputView(self,wantsToSend: message)
+        if self.messageInputTextView.text.isEmpty == false {
+            btnSend.isEnabled = true
+            guard let message = messageInputTextView.text else { return }
+            delegate?.inputView(self,wantsToSend: message)
+        } else {
+            btnSend.isEnabled = false
+        }
+        
     }
     
     @objc func handleAdd() { // 新增媒體

@@ -31,10 +31,10 @@ struct AuthManager {
     func createUser(credentails: RegistrationCredentials, completion: @escaping ((Error?)->Void)) {
         guard let imageData = credentails.profileImage.jpegData(compressionQuality: 0.5) else { return }
         
-        let filename = NSUUID().uuidString
+        let filename = "\(NSUUID().uuidString)"
         
         // 上傳照片
-        let ref = Storage.storage().reference(withPath: "/profile_images/\(filename)")
+        let ref = Storage.storage().reference(withPath: "profile_images/\(filename)")
         ref.putData(imageData, metadata: nil) { (meta, error) in
             if error != nil {
                 //print("DEBUG: Failed upload image to firebase storage \(errorMsg.localizedDescription)")

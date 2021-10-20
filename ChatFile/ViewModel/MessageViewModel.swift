@@ -11,7 +11,7 @@ struct MessageViewModel {
     private let message: Message
     
     var messageBackgroundColor: UIColor {
-        return message.isFromCurrentUser ? #colorLiteral(red: 0.9333333333, green: 0.9333333333, blue: 0.9333333333, alpha: 1) : .systemPurple
+        return message.isFromCurrentUser ? #colorLiteral(red: 0.9333333333, green: 0.9333333333, blue: 0.9333333333, alpha: 1) : #colorLiteral(red: 0, green: 0, blue: 0, alpha: 0.8832397461)
     }
     
     var messageTextColor: UIColor {

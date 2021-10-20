@@ -41,29 +41,31 @@
                             <rect key="frame" x="0.0" y="0.0" width="414" height="69"/>
                             <subviews>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="聊天" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yyh-G9-qcd">
-                                    <rect key="frame" x="12" y="24" width="35" height="21"/>
+                                    <rect key="frame" x="20" y="24" width="35" height="21"/>
                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                     <nil key="textColor"/>
                                     <nil key="highlightedColor"/>
                                 </label>
-                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ecH-MS-4CQ">
-                                    <rect key="frame" x="356" y="14.5" width="40" height="40"/>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ecH-MS-4CQ">
+                                    <rect key="frame" x="346" y="9.5" width="50" height="50"/>
                                     <constraints>
-                                        <constraint firstAttribute="height" constant="40" id="ZPp-Qw-CLk"/>
-                                        <constraint firstAttribute="width" constant="40" id="dzr-uB-ujk"/>
+                                        <constraint firstAttribute="height" constant="50" id="ZPp-Qw-CLk"/>
+                                        <constraint firstAttribute="width" constant="50" id="dzr-uB-ujk"/>
                                     </constraints>
-                                    <state key="normal" title="登出"/>
+                                    <inset key="imageEdgeInsets" minX="12" minY="12" maxX="12" maxY="12"/>
+                                    <state key="normal" title="登出" image="logOutBlack"/>
                                     <connections>
                                         <action selector="action_logout:" destination="-1" eventType="touchUpInside" id="dQS-jA-079"/>
                                     </connections>
                                 </button>
-                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3g8-dw-xXr">
-                                    <rect key="frame" x="304" y="14.5" width="40" height="40"/>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3g8-dw-xXr">
+                                    <rect key="frame" x="284" y="9.5" width="50" height="50"/>
                                     <constraints>
-                                        <constraint firstAttribute="width" constant="40" id="CSP-F0-QVh"/>
-                                        <constraint firstAttribute="height" constant="40" id="hxD-oO-la8"/>
+                                        <constraint firstAttribute="width" constant="50" id="CSP-F0-QVh"/>
+                                        <constraint firstAttribute="height" constant="50" id="hxD-oO-la8"/>
                                     </constraints>
-                                    <state key="normal" title="我的"/>
+                                    <inset key="imageEdgeInsets" minX="12" minY="12" maxX="12" maxY="12"/>
+                                    <state key="normal" title="我的" image="user"/>
                                     <connections>
                                         <action selector="action_MyProfile:" destination="-1" eventType="touchUpInside" id="Paj-8O-rDA"/>
                                     </connections>
@@ -72,7 +74,7 @@
                             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             <constraints>
                                 <constraint firstItem="ecH-MS-4CQ" firstAttribute="leading" secondItem="3g8-dw-xXr" secondAttribute="trailing" constant="12" id="8un-hP-Xi3"/>
-                                <constraint firstItem="yyh-G9-qcd" firstAttribute="leading" secondItem="sSh-BB-p6G" secondAttribute="leading" constant="12" id="Dnt-CL-f1v"/>
+                                <constraint firstItem="yyh-G9-qcd" firstAttribute="leading" secondItem="sSh-BB-p6G" secondAttribute="leading" constant="20" id="Dnt-CL-f1v"/>
                                 <constraint firstAttribute="trailing" secondItem="ecH-MS-4CQ" secondAttribute="trailing" constant="18" id="G8G-d0-Vel"/>
                                 <constraint firstItem="ecH-MS-4CQ" firstAttribute="centerY" secondItem="sSh-BB-p6G" secondAttribute="centerY" id="S9X-LT-r0v"/>
                                 <constraint firstItem="yyh-G9-qcd" firstAttribute="centerY" secondItem="sSh-BB-p6G" secondAttribute="centerY" id="hNc-VE-cVw"/>
@@ -115,6 +117,8 @@
         </view>
     </objects>
     <resources>
+        <image name="logOutBlack" width="60" height="60"/>
+        <image name="user" width="100" height="100"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
