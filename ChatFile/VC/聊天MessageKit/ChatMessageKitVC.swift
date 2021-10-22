@@ -38,7 +38,7 @@ class ChatMessageKitVC: MessagesViewController, MessagesLayoutDelegate {
         messagesCollectionView.messagesDisplayDelegate = self
 
         fetchMessages {
-            self.messages = self.messages.sorted(by: {$0.sentDate < $1.sentDate}) // 排序最早的在前面
+       //     self.messages = self.messages.sorted(by: {$0.sentDate < $1.sentDate}) // 排序最早的在前面
 //            //self.hud.dismiss()
 //            self.messagesCollectionView.reloadData()
 //            self.messagesCollectionView.scrollToLastItem(at: .bottom, animated: false)

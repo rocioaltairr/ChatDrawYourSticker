@@ -26,7 +26,8 @@ class UserManager {
             
         }
     }
-    // MARK: - 抓取各個第一筆的conversation
+    
+    // MARK: - 抓取全部Coversation資料
     static func fetchConversations(completion: @escaping([Conversation]) -> Void) {
         var conversations = [Conversation]()
         guard let currentUid = Auth.auth().currentUser?.uid else { return } // 只拿取某個user的 message
@@ -37,6 +38,41 @@ class UserManager {
             conversations.removeAll()
             snapshot?.documentChanges.forEach({ change in
                 let newMessages = change.document.data()
+                let message = MessageFirebase(dictionary: newMessages)
+                
+                var whith:String = ""
+                if message.isFromCurrentUser == true {
+                    whith = newMessages["toID"] as! String
+                } else {
+                    whith =  newMessages["fromID"] as! String
+                }
+                // 抓取新聊天記錄中對方的姓名和對話
+                self.fetchUser(whitUid: whith) { user in
+                    let conversation = Conversation(user: user, message: message,imgUrl:user.profileImageUrl)
+                    conversations.append(conversation)
+                    if conversation.user.uid != currentUid { // 只能顯示他人訊息
+                        //conversations.insert(conversation, at: 0) // 最早的要在上面
+                        
+                    }
+                    
+                    completion(conversations)
+                }
+                
+            })
+        }
+    }
+    
+    // MARK: - 抓取更動的Coversation資料
+    static func fetchNewConversations(completion: @escaping([Conversation]) -> Void) {
+        var conversations = [Conversation]()
+        guard let currentUid = Auth.auth().currentUser?.uid else { return } // 只拿取某個user的 message
+        // 抓取使用者全部的聊天紀錄並用時間先後做排序
+        let query = COLLECTION_MESSAGES.document(currentUid).collection("recent-messages").order(by: "timestamp")
+        
+        query.getDocuments{ (snapshot, error) in // 每次database有增加東西就觸發
+            conversations.removeAll()
+            snapshot?.documents.forEach({ document in
+                let newMessages = document.data()
                 let message = MessageFirebase(dictionary: newMessages)
                 
                 var whith:String = ""
@@ -106,7 +142,8 @@ class UserManager {
     static func fetchMessage(forUser user:User, completion: @escaping([Message]) -> Void) {
         var messages = [Message]()
         guard let currentUid = Auth.auth().currentUser?.uid else { return }
-        COLLECTION_MESSAGES.document(currentUid).collection(user.uid).order(by: "timestamp").addSnapshotListener { (snapshot, error) in             snapshot?.documents.forEach({ (document) in
+        COLLECTION_MESSAGES.document(currentUid).collection(user.uid).order(by: "timestamp").addSnapshotListener { (snapshot, error) in
+            snapshot?.documents.forEach({ (document) in
             let newMessages = document.data()
             messages.append(Message(dictionary: newMessages))
         })

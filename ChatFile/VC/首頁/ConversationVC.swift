@@ -23,6 +23,7 @@ class ConversationVC: UIViewController {
     var nsCache = NSCache<NSString, ImageCache>()
     private var messages = [Message]()
     var conversations:[Conversation]?
+    var conversation:Conversation?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -39,17 +40,51 @@ class ConversationVC: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        hud.dismiss()
+        //fetchAllConversation()
         fetchUserAndLastMessage()
     }
     
-    func fetchUserAndLastMessage() {
+    func fetchAllConversation() {
+        
         UserManager.fetchConversations {[weak self] con in
             guard let self = self else { return }
             self.hud.textLabel.text = "Loading"
             self.hud.show(in: self.view)
             
             self.conversations = con
+            self.conversations = self.conversations?.sorted(by: {$0.message.timestamp.dateValue() > $1.message.timestamp.dateValue()}) // 排序最早的在前面
+            self.tbvMain.reloadData()
+        }
+    }
+    
+    func fetchUserAndLastMessage() {
+        UserManager.fetchNewConversations {[weak self] con in
+            guard let self = self else { return }
+//            self.hud.textLabel.text = "Loading"
+//            self.hud.show(in: self.view)
+            if con.count == 1 { // 如果只有1代表為更新的資料
+                for i in 0..<self.conversations!.count {
+                    if self.conversations?[i].message.user?.username == self.conversation?.message.user?.username {
+                        //self.conversations?.remove(at: i)
+                        self.conversations?[i] = con[0]
+                        //self.conversations?.insert(contentsOf: con, at: 0)
+                        return
+                    }
+                }
+            } else {
+                self.conversations = con
+            }
+            //self.conversations = con
+//            for i in 0..<self.conversations!.count {
+//                if self.conversations?[i].message.user?.uid == self.conversation?.message.user?.uid {
+//                    self.conversations?.remove(at: i)
+//                    self.conversations?.insert(self.conversation!, at: 0)
+//                    self.conversations = self.conversations?.sorted(by: {$0.message.timestamp.dateValue() >  $1.message.timestamp.dateValue()}) // 排序最早的在前面
+//                    self.tbvMain.reloadData()
+//                }
+//
+//            }
+            
             self.conversations = self.conversations?.sorted(by: {$0.message.timestamp.dateValue() > $1.message.timestamp.dateValue()}) // 排序最早的在前面
             self.tbvMain.reloadData()
         }
