@@ -63,14 +63,15 @@ class ConversationVC: UIViewController {
 //            self.hud.textLabel.text = "Loading"
 //            self.hud.show(in: self.view)
             if con.count == 1 { // 如果只有1代表為更新的資料
-                for i in 0..<self.conversations!.count {
-                    if self.conversations?[i].message.user?.username == self.conversation?.message.user?.username {
-                        //self.conversations?.remove(at: i)
-                        self.conversations?[i] = con[0]
-                        //self.conversations?.insert(contentsOf: con, at: 0)
-                        return
-                    }
-                }
+                self.conversations = con
+//                for i in 0..<self.conversations!.count {
+//                    if self.conversations?[i].message.user?.username == self.conversation?.message.user?.username {
+//                        //self.conversations?.remove(at: i)
+//                        self.conversations?[i] = con[0]
+//                        //self.conversations?.insert(contentsOf: con, at: 0)
+//                        return
+//                    }
+//                }
             } else {
                 self.conversations = con
             }
