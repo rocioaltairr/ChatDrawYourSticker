@@ -25,7 +25,7 @@ class ConversationVC: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        LoadingUtil.showWithTitle(title: "請稍候")
+       // LoadingUtil.showWithTitle(title: "請稍候")
         searchBar.textField?.font = UIFont.systemFont(ofSize: 15)
         tbvMain.separatorStyle = .none
        // self.tbvMain.allowsSelection = true
@@ -33,6 +33,7 @@ class ConversationVC: UIViewController {
         self.tbvMain.dataSource = self
         self.tbvMain.register(UINib(nibName: "ConversationsTbvCell", bundle: nil), forCellReuseIdentifier: "ConversationsTbvCell")
         fetchCurrentUser()
+        
         //fetchUserAndLastMessage()
         
     }

@@ -61,25 +61,24 @@ class MyProfileVC: UIViewController {
             self.lbFullName.text = user.username
             self.lbName.text = "HI~各位"
         
-            if let currentUserImageData = UserDefaults.standard.data(forKey: "currentUserImage") {
+            if UserDefaults.standard.data(forKey: "currentUserImage") == nil { // 如果沒有還沒存入UserDefult，就去firebase抓圖
                 let refUser = Storage.storage().reference().child("\(user.profileImageUrl)")
                 refUser.getData(maxSize: 1 * 1024 * 1024) { data, error in //取得使用者大頭貼照
                     if error != nil { print("DEBUG: 取得 Storage 使用者背景照 圖片失敗") }
                     if let imgData = data {
                         self.vwProfileImg.image = UIImage(data: imgData)
-                        let cacheImage = ImageCache()
-                        cacheImage.image = UIImage(data: imgData)
-                        self.nsCache.setObject(cacheImage, forKey: "currentUserImage" as NSString)
+                        UserDefaultUtil.save(key: "currentUserImage", saveObj: imgData)
                     }
                 }
             }
 
-            if  UserDefaultUtil.loadData(key: "currentUserBackgroundImage") == nil {
+            if  UserDefaults.standard.data(forKey: "currentUserBackgroundImage") == nil {
                 let ref = Storage.storage().reference().child("BackgroundImage\(user.profileImageUrl)")
                 ref.getData(maxSize: 1 * 1024 * 1024) { data, error in //取得使用者背景照
-                    if error != nil { print("DEBUG: 取得 Storage 使用者背景照 圖片失敗")}
+                    if error != nil { print("DEBUG: 取得 Storage 使用者背景照 圖片失敗 \(error?.localizedDescription ?? "")")}
                     if let imgData = data {
                         self.imgBackground.image = UIImage(data: imgData)
+                        UserDefaultUtil.save(key: "currentUserBackgroundImage", saveObj: imgData)
                     }
                 }
             }
@@ -109,8 +108,6 @@ class MyProfileVC: UIViewController {
     @IBAction func action_setBackgroundImage(_ sender: Any) {
         imageType = .userBackground
         self.selectImgAlert()
-        
-       // self.imgBackground.image = UIImage(named: "")
     }
     
     // MARK: - 關閉VC

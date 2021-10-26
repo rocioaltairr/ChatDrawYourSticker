@@ -10,7 +10,6 @@ import AVFoundation
 import AVKit
 import MessageKit
 import Firebase
-import JGProgressHUD
 import ALCameraViewController
 
 
@@ -53,12 +52,10 @@ class ChatMessageKitVC: MessagesViewController, MessagesLayoutDelegate {
     var firstDocumentSnapshot: DocumentSnapshot!
     var fetchingMore = false
     
-    
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         setUpHeader()
-        LoadingUtil.showWithTitle(title: "請稍候..")
+        LodingActivityIndicatorUtil.shared.showLoader(view: self.view)
         messagesCollectionView.messagesDataSource = self
         messagesCollectionView.messagesLayoutDelegate = self
         messagesCollectionView.messagesDisplayDelegate = self
@@ -77,37 +74,19 @@ class ChatMessageKitVC: MessagesViewController, MessagesLayoutDelegate {
     // MARK: - 滑動
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         if scrollView == messagesCollectionView {
-            if messagesCollectionView.contentOffset.y < 50 {
+            if messagesCollectionView.contentOffset.y < 50 { //上滑動
+                UpLodingActivityIndicatorUtil.shared.showLoader(view: self.view)
                 loadMessages()
                 let oldContentSizeHeight = messagesCollectionView.contentSize.height
                 messagesCollectionView.reloadData()
                 let newContentSizeHeight = messagesCollectionView.contentSize.height
                 messagesCollectionView.contentOffset = CGPoint(x:messagesCollectionView.contentOffset.x,y:newContentSizeHeight - oldContentSizeHeight)
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
+                    UpLodingActivityIndicatorUtil.shared.hideLoader()
+                })
             }
         }
-//        var visibleRect = CGRect()
-//
-//        visibleRect.origin = self.messagesCollectionView.contentOffset
-//        visibleRect.size = self.messagesCollectionView.bounds.size
-//        let visiblePoint = CGPoint(x: visibleRect.midX, y: visibleRect.midY)
-//
-//        guard let indexPath = self.messagesCollectionView.indexPathForItem(at: visiblePoint) else { return }
-//
-//        print(" \(indexPath)")
-//        self.loadMessages()
-        
-    }
-    
-    func scrollViewDidScrollToTop(_ scrollView: UIScrollView) {
-        print("")
-    }
-    
-    func scrollViewWillBeginDecelerating(_ scrollView: UIScrollView) {
-        print("")
-    }
-    
-    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        print("")
     }
     
     func loadMessages() {
@@ -115,6 +94,7 @@ class ChatMessageKitVC: MessagesViewController, MessagesLayoutDelegate {
         
         var loadMessagesFirst :Bool = false
         var query: Query!
+
         
         if messages.isEmpty {
             query = COLLECTION_MESSAGES.document(currentUser!.uid).collection(otherUser!.uid).order(by: "timestamp").limit(toLast: 15)
@@ -130,7 +110,7 @@ class ChatMessageKitVC: MessagesViewController, MessagesLayoutDelegate {
             if let err = err {
                 print("\(err.localizedDescription)")
             } else if snapshot!.isEmpty {
-                LoadingUtil.hideView()
+                LodingActivityIndicatorUtil.shared.hideLoader()
                 self.fetchingMore = false
                 return
             } else {
@@ -177,18 +157,22 @@ class ChatMessageKitVC: MessagesViewController, MessagesLayoutDelegate {
                   //  print(".\messages載入完成")
                     if loadMessagesFirst == true {
                         self.messages =  self.messages.sorted(by:{ $0.sentDate < $1.sentDate})
+                        self.messages = self.messages.unique{$0.messageId}
                         self.fetchingMore = false
                         DispatchQueue.main.async {
+                            
                             self.messagesCollectionView.reloadData()
                             self.messagesCollectionView.scrollToLastItem() // 第一次進去滑到最下方
-                            LoadingUtil.hideView()
+                            LodingActivityIndicatorUtil.shared.hideLoader()
                         }
                     } else {
+                        self.messages =  self.messages.sorted(by:{ $0.sentDate < $1.sentDate})
+                        self.messages = self.messages.unique{$0.messageId}
                         DispatchQueue.main.async {
-                            self.messages =  self.messages.sorted(by:{ $0.sentDate < $1.sentDate})
                             self.messagesCollectionView.reloadData()
                             self.fetchingMore = false
-                            LoadingUtil.hideView()
+                            LodingActivityIndicatorUtil.shared.hideLoader()
+                           
                         }
                     }
                 }
@@ -320,14 +304,14 @@ extension ChatMessageKitVC: MessagesDisplayDelegate {
                         }
                         // 上傳照片到Storage
                         UserManager.uploadMessagePhoto(with: (self.self.profileImage?.jpegData(compressionQuality: 0.1))!, fileName: mssageImageUrl, completion: nil)
-                        
+
                         DispatchQueue.main.async {
-                            LoadingUtil.showWithTitle(title: "請稍候..")
+                            LodingActivityIndicatorUtil.shared.hideLoader()
                             self.messagesCollectionView.scrollToLastItem() // 第一次進去滑到最下方
                         }
                     }
                     picker?.dismiss(animated: true, completion: nil)
-                case .video(let video):
+                case .video(_):
                     print("")
                 }
             }
@@ -377,13 +361,14 @@ extension ChatMessageKitVC: MessagesDisplayDelegate {
                     }
                     // 上傳照片到Storage
                     UserManager.uploadMessagePhoto(with: (p.image.jpegData(compressionQuality: 0.1))!, fileName: mssageImageUrl, completion: nil)
-    
+
                     DispatchQueue.main.async {
-                        //self.messagesCollectionView.reloadData()
+                        self.messages = self.messages.unique{$0.messageId }
+                        self.messagesCollectionView.reloadData()
                         self.messagesCollectionView.scrollToLastItem() // 第一次進去滑到最下方
                     }
                     
-                case .video(let v):
+                case .video(_):
                     print("")
                 }
             }
@@ -397,6 +382,7 @@ extension ChatMessageKitVC:MessagesDataSource {
 }
 
 // MARK: - 選取圖片
+/*
 extension ChatMessageKitVC: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any])
@@ -440,7 +426,7 @@ extension ChatMessageKitVC: UIImagePickerControllerDelegate, UINavigationControl
     fileprivate func convertFromUIImagePickerControllerInfoKey(_ input: UIImagePickerController.InfoKey) -> String {
         return input.rawValue
     }
-}
+}*/
 
 // MARK: - 上傳InputAccessoryView
 extension ChatMessageKitVC: CustomInputAccessoryViewDelegate {
@@ -466,6 +452,7 @@ extension ChatMessageKitVC: CustomInputAccessoryViewDelegate {
             if error != nil {
                 return
             }
+
         }
         inputView.clearSendMessage()
     }
@@ -495,7 +482,7 @@ extension ChatMessageKitVC {
     }
     
     // MARK: - 從Firebase 取得Messages
-  /*  func fetchMessages(completion:@escaping() -> Void) {
+    func fetchMessages(completion:@escaping() -> Void) {
         DispatchQueue.global(qos: .userInitiated).async {
             print("This is run on a background queue")
             UserManager.fetchNewMessage(forUser: self.otherUser!) { [weak self] (msg)  in
@@ -535,13 +522,13 @@ extension ChatMessageKitVC {
                         DispatchQueue.main.async { // 排序最早的在前面
                             self.messages = self.messages.sorted(by: {$0.sentDate < $1.sentDate})
                             self.messagesCollectionView.scrollToLastItem(at: .bottom, animated: false)
-                            LoadingUtil.hideView()
+                            LodingActivityIndicatorUtil.shared.hideLoader()
                         }
                     }
                 }
             }
         }
-    }*/
+    }
 }
 
 // Support methods
@@ -564,15 +551,59 @@ extension ChatMessageKitVC: YPImagePickerDelegate {
         return true // indexPath.row != 2
     }
 }
-// 移除陣列中重複的元素
-extension Array where Element: Hashable {
-  func removingDuplicates() -> [Element] {
-      var addedDict = [Element: Bool]()
-      return filter {
-        addedDict.updateValue(true, forKey: $0) == nil
-      }
-   }
-   mutating func removeDuplicates() {
-      self = self.removingDuplicates()
-   }
+// 移除陣列中重複的元素 Customed Objects
+extension Array {
+    func unique<T:Hashable>(map: ((Element) -> (T)))  -> [Element] {
+        var set = Set<T>() //the unique list kept in a Set for fast retrieval
+        var arrayOrdered = [Element]() //keeping the unique list of elements but ordered
+        for value in self {
+            if !set.contains(map(value)) {
+                set.insert(map(value))
+                arrayOrdered.append(value)
+            }
+        }
+
+        return arrayOrdered
+    }
 }
+//
+//class EmojiTextField: UITextField {
+//
+//   // required for iOS 13
+//   override var textInputContextIdentifier: String? { "" }
+//
+//    override var textInputMode: UITextInputMode? {
+//        for mode in UITextInputMode.activeInputModes {
+//            if mode.primaryLanguage == "emoji" {
+//                return mode
+//            }
+//        }
+//        return nil
+//    }
+//
+//override init(frame: CGRect) {
+//        super.init(frame: frame)
+//
+//        commonInit()
+//    }
+//
+//    required init?(coder: NSCoder) {
+//        super.init(coder: coder)
+//
+//         commonInit()
+//    }
+//
+//    func commonInit() {
+//        NotificationCenter.default.addObserver(self, selector: #selector(inputModeDidChange), name: NSNotification.Name.UITextInputMode.currentInputModeDidChangeNotificationUITextInputMode.currentInputModeDidChangeNotification, object: nil)
+//    }
+//
+//    @objc func inputModeDidChange(_ notification: Notification) {
+//        guard isFirstResponder else {
+//            return
+//        }
+//
+//        DispatchQueue.main.async { [weak self] in
+//            self?.reloadInputViews()
+//        }
+//    }
+//}

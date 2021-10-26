@@ -17,6 +17,8 @@ target 'ChatFile' do
   pod 'ALCameraViewController'
   
   pod 'YPImagePicker'
+  pod 'NVActivityIndicatorView'
+  pod 'ISEmojiView'
   use_frameworks!
 
   # Pods for ChatFile

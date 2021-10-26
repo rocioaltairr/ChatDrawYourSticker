@@ -498,6 +498,7 @@ PODS:
   - InputBarAccessoryView (5.3.1):
     - InputBarAccessoryView/Core (= 5.3.1)
   - InputBarAccessoryView/Core (5.3.1)
+  - ISEmojiView (0.2.6)
   - JGProgressHUD (2.2)
   - leveldb-library (1.22.1)
   - MessageKit (3.6.1):
@@ -507,6 +508,9 @@ PODS:
     - nanopb/encode (= 2.30908.0)
   - nanopb/decode (2.30908.0)
   - nanopb/encode (2.30908.0)
+  - NVActivityIndicatorView (5.1.1):
+    - NVActivityIndicatorView/Base (= 5.1.1)
+  - NVActivityIndicatorView/Base (5.1.1)
   - PromisesObjC (2.0.0)
   - PryntTrimmerView (4.0.2)
   - SDWebImage (5.11.1):
@@ -527,8 +531,10 @@ DEPENDENCIES:
   - Firebase/Firestore
   - Firebase/Storage
   - GoogleSignIn
+  - ISEmojiView
   - JGProgressHUD
   - MessageKit
+  - NVActivityIndicatorView
   - SDWebImage
   - YPImagePicker
 
@@ -556,10 +562,12 @@ SPEC REPOS:
     - GTMAppAuth
     - GTMSessionFetcher
     - InputBarAccessoryView
+    - ISEmojiView
     - JGProgressHUD
     - leveldb-library
     - MessageKit
     - nanopb
+    - NVActivityIndicatorView
     - PromisesObjC
     - PryntTrimmerView
     - SDWebImage
@@ -589,16 +597,18 @@ SPEC CHECKSUMS:
   GTMAppAuth: ad5c2b70b9a8689e1a04033c9369c4915bfcbe89
   GTMSessionFetcher: 36689134877faeb055b27dfa4ccc9ceaa42e029e
   InputBarAccessoryView: 1f75d8c9f75e5e57f3ffac36ed58635a8005e0bc
+  ISEmojiView: f7cd94a6c93307f429ec5da001293d0b02247f03
   JGProgressHUD: d83d7a981b85d11205e19ff8ad5bb9c40571c847
   leveldb-library: 50c7b45cbd7bf543c81a468fe557a16ae3db8729
   MessageKit: d153fbbbcb12f3f4045a1ba8874298924dacfb62
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
+  NVActivityIndicatorView: 1f6c5687f1171810aa27a3296814dc2d7dec3667
   PromisesObjC: 68159ce6952d93e17b2dfe273b8c40907db5ba58
   PryntTrimmerView: 6a43cc90df5d99addeabd33d4ba09b1365322130
   SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
   SteviaLayout: c2ecdcff57d44e38fd2f65e54ad52aeae28ca0c4
   YPImagePicker: 1463a19a36244e209dcb03c30e63559c5afa9602
 
-PODFILE CHECKSUM: 44b7df20e20f9507e567e88f24de53cc847e0cbf
+PODFILE CHECKSUM: 95f7e14fe9c0afbc1c7d277ca810bf24e4d2a5f1
 
 COCOAPODS: 1.10.1

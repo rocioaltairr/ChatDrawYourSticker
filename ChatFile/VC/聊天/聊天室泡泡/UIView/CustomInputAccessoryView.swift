@@ -7,6 +7,7 @@
 
 import UIKit
 import MessageKit
+import ISEmojiView
 
 protocol CustomInputAccessoryViewDelegate {
     func inputView(_ inputView: CustomInputAccessoryView,wantsToSend message: String)
@@ -16,7 +17,7 @@ protocol CustomInputAccessoryViewDelegate {
     
 }
 class CustomInputAccessoryView: UIView {
-    
+
     var delegate:CustomInputAccessoryViewDelegate?
     
     let messageInputTextView: UITextView = {
@@ -104,7 +105,14 @@ class CustomInputAccessoryView: UIView {
         btnSend.setDimensions(height: 30, width: 30)
         btnSend.centerY(inView: self)
         
+        let keyboardSettings = KeyboardSettings(bottomType: .categories)
+        let emojiView = EmojiView(keyboardSettings: keyboardSettings)
+        emojiView.translatesAutoresizingMaskIntoConstraints = false
+        emojiView.delegate = self
+        
         addSubview(messageInputTextView) // 聊天輸入框
+        messageInputTextView.inputView = emojiView
+        
         messageInputTextView.anchor(top:topAnchor, left: btnAddLibraryPhoto.rightAnchor, bottom: safeAreaLayoutGuide.bottomAnchor,
                                     right: btnSend.leftAnchor, paddingLeft: 4, paddingRight: 12)
         messageInputTextView.setHeight(height:  55)
@@ -173,5 +181,25 @@ class CustomInputAccessoryView: UIView {
     
     override var intrinsicContentSize: CGSize {
         return .zero // in will be like the parent view constraint
+    }
+}
+
+extension CustomInputAccessoryView: EmojiViewDelegate {
+    func emojiViewDidSelectEmoji(_ emoji: String, emojiView: EmojiView) {
+        messageInputTextView.insertText(emoji)
+    }
+    
+    func emojiViewDidPressChangeKeyboardButton(_ emojiView: EmojiView) {
+        messageInputTextView.inputView = nil
+        messageInputTextView.keyboardType = .default
+        messageInputTextView.reloadInputViews()
+    }
+    
+    func emojiViewDidPressDeleteBackwardButton(_ emojiView: EmojiView) {
+        messageInputTextView.deleteBackward()
+    }
+    
+    func emojiViewDidPressDismissKeyboardButton(_ emojiView: EmojiView) {
+        messageInputTextView.resignFirstResponder()
     }
 }

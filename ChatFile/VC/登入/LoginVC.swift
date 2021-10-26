@@ -104,7 +104,6 @@ class LoginVC: UIViewController,UITextFieldDelegate {
                     AlertUtil.showMessage(message: "登入失敗\(error?.localizedDescription ?? "")")
                     LoadingUtil.hideView()
                     //self.showError("email格式錯誤，密碼超過6個字，如還沒申請帳號請去下方申請！")
-
                     return
                 }
                 self.navigationController?.pushViewController(vc, animated: true)
