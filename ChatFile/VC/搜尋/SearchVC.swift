@@ -13,59 +13,61 @@ import FirebaseStorage
 
 class SearchVC: UIViewController {
     
+    @IBOutlet weak var searchBae: UISearchBar!
     @IBOutlet weak var tbv: UITableView!
+    
     var currentUser : User?
     var otherUsers = [User]()
-    var nsCache = NSCache<NSString, ImageCache>()
-    var selectedIndex:Int = 0
+    var newUsers = [User]()
+    
+    //var nsCache = NSCache<NSString, ImageCache>()
+    var shouldShowSearchResults = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
         tbv.delegate = self
         tbv.dataSource = self
         tbv.register(UINib(nibName: "SearchTbvCell", bundle: nil), forCellReuseIdentifier: "SearchTbvCell")
-        fetchUserID()
+        searchBae.delegate = self
+        searchBae.searchTextField.delegate = self
+        fetchUserData()
     }
     
-    // 抓取使用者
-    func fetchUserID() {
+    // MARK: - 取得使用者資料
+    func fetchUserData() {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         UserManager.fetchUser(whitUid: uid) { user in
             self.currentUser = user
             self.fetchOtherUsers()
-            let ref = Storage.storage().reference().child(user.profileImageUrl)
-            ref.getData(maxSize: 1 * 1024 * 1024) { data, error in
-                if error != nil {
-                    print("DEBUG: 取得 Storage 圖片失敗")
-                } else {
-                    //let image = UIImage(data: data!)
-                    //self.nsCache.setObject(image!,
-                    // forKey: "currentUserImage")
-                    
-                    let cacheImage = ImageCache()
-                    cacheImage.image = UIImage(data: data!)
-                    self.nsCache.setObject(cacheImage, forKey: "currentUserImage" as NSString)
-                    
-                    //self.imgSender = image
-                }
-            }
         }
     }
+    
     // MARK: - 抓取其他使用者資料
     func fetchOtherUsers() {
         UserManager.fetchOtherUsers { users in
             self.otherUsers = users
-            //print("DEBUG: User is new message controller \(users)")
             self.tbv.reloadData()
         }
     }
     
+    // MARK: - 關閉搜尋
     @IBAction func action_back(_ sender: Any) {
-        self.navigationController?.popViewController(animated: false)
+        dismiss_VC()
     }
     
+    // MARK: - 關閉搜尋
     @IBAction func action_close(_ sender: Any) {
-        self.navigationController?.popViewController(animated: false)
+        dismiss_VC()
+    }
+    
+    func dismiss_VC() {
+        let transition = CATransition()
+        transition.duration = 0.3
+        transition.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
+        transition.type = CATransitionType.reveal
+        transition.subtype = CATransitionSubtype.fromBottom
+        navigationController?.view.layer.add(transition, forKey: nil)
+        _ = navigationController?.popViewController(animated: false)
     }
     
 }
@@ -73,37 +75,99 @@ class SearchVC: UIViewController {
 extension SearchVC: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return otherUsers.count
+        if shouldShowSearchResults == true {
+            return otherUsers.count
+        } else {
+            return otherUsers.count
+        }
+        
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "SearchTbvCell", for: indexPath) as! SearchTbvCell
         cell.selectionStyle = .none
+        
         cell.lbTitle.text = otherUsers[indexPath.row].username
+        if let otherUserImageData = UserDefaults.standard.data(forKey: "otherUserImage\(self.otherUsers[indexPath.row].uid)") {
+            cell.imgUser.image = UIImage(data: otherUserImageData)
+        } else {
+            let ref = Storage.storage().reference().child(otherUsers[indexPath.row].profileImageUrl)
+            ref.getData(maxSize: 1 * 1024 * 1024) { data, error in
+                if error != nil {
+                    print("DEBUG: 取得 Storage 圖片失敗")
+                } else {
+                    if let imageData = data {
+                        UserDefaultUtil.save(key: "otherUserImage\(self.otherUsers[indexPath.row].uid)", saveObj: imageData)
+                        cell.imgUser.image = UIImage(data: imageData)
+                    }
+                }
+            }
+        }
         return cell
     }
     
-    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let vwHeader = UIView(frame: CGRect(x: 0, y: 0, width: self.view.bounds.width, height: 44))
-        let lb = UILabel(frame: CGRect(x: 16, y: 12, width: 100, height: 20))
-        
-        lb.text = "最近搜尋"
-        vwHeader.addSubview(lb)
-        return vwHeader
-    }
-    
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 44
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 60
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-
         let cv = ChatMessageKitVC()
-        selectedIndex = indexPath.row
         cv.currentUser = currentUser
         cv.otherUser = otherUsers[indexPath.row]
-        cv.nsCache = self.nsCache
+        //cv.nsCache = self.nsCache
         self.navigationController?.pushViewController(cv, animated: true)
     }
+    
+    /*
+     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+     let vwHeader = UIView(frame: CGRect(x: 0, y: 0, width: self.view.bounds.width, height: 44))
+     let lb = UILabel(frame: CGRect(x: 16, y: 12, width: 100, height: 20))
+     
+     lb.text = "全部"
+     vwHeader.addSubview(lb)
+     return vwHeader
+     }
+     
+     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+     return 45
+     
+     }*/
 }
 
+extension SearchVC: UISearchBarDelegate, UITextFieldDelegate {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchText == "" {
+            UserManager.fetchOtherUsers { users in
+                self.otherUsers = users
+                self.tbv.reloadData()
+            }
+        } else {
+            UserManager.fetchOtherUsers { users in
+                self.otherUsers = users
+                self.reload(text: searchText)
+                
+            }
+        }
+    }
+    func reload(text:String) {
+        newUsers.removeAll()
+        for otherUser in otherUsers {
+            if otherUser.username.contains(text) {
+                newUsers.append(otherUser)
+            }
+        }
+        DispatchQueue.main.async {
+            self.otherUsers = self.newUsers
+            self.tbv.reloadData()
+        }
+    }
+    
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        shouldShowSearchResults = true
+    }
+    
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        shouldShowSearchResults = false
+        tbv.reloadData()
+    }
+}

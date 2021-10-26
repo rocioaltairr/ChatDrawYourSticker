@@ -8,9 +8,14 @@
 import UIKit
 
 class SearchTbvCell: UITableViewCell {
-
+    @IBOutlet weak var imgUser: UIImageView!
+    
     @IBOutlet weak var lbTitle: UILabel!
     override func awakeFromNib() {
+        imgUser.contentMode = .scaleAspectFill
+        imgUser.layer.masksToBounds = false
+        imgUser.layer.cornerRadius = imgUser.frame.height/2
+        imgUser.clipsToBounds = true
         super.awakeFromNib()
         // Initialization code
     }

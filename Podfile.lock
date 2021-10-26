@@ -338,6 +338,7 @@ PODS:
     - abseil/base/base_internal
     - abseil/base/config
     - abseil/meta/type_traits
+  - ALCameraViewController (3.1)
   - AppAuth (1.4.0):
     - AppAuth/Core (= 1.4.0)
     - AppAuth/ExternalUserAgent (= 1.4.0)
@@ -507,11 +508,17 @@ PODS:
   - nanopb/decode (2.30908.0)
   - nanopb/encode (2.30908.0)
   - PromisesObjC (2.0.0)
+  - PryntTrimmerView (4.0.2)
   - SDWebImage (5.11.1):
     - SDWebImage/Core (= 5.11.1)
   - SDWebImage/Core (5.11.1)
+  - SteviaLayout (4.7.3)
+  - YPImagePicker (5.0.0):
+    - PryntTrimmerView (= 4.0.2)
+    - SteviaLayout (= 4.7.3)
 
 DEPENDENCIES:
+  - ALCameraViewController
   - Firebase
   - Firebase/Analytics
   - Firebase/Auth
@@ -523,10 +530,12 @@ DEPENDENCIES:
   - JGProgressHUD
   - MessageKit
   - SDWebImage
+  - YPImagePicker
 
 SPEC REPOS:
   trunk:
     - abseil
+    - ALCameraViewController
     - AppAuth
     - BoringSSL-GRPC
     - Firebase
@@ -552,10 +561,14 @@ SPEC REPOS:
     - MessageKit
     - nanopb
     - PromisesObjC
+    - PryntTrimmerView
     - SDWebImage
+    - SteviaLayout
+    - YPImagePicker
 
 SPEC CHECKSUMS:
   abseil: 6c8eb7892aefa08d929b39f9bb108e5367e3228f
+  ALCameraViewController: 144dea45fd749a623aafd8cb7b10cea88499fcc3
   AppAuth: 31bcec809a638d7bd2f86ea8a52bd45f6e81e7c7
   BoringSSL-GRPC: 8edf627ee524575e2f8d19d56f068b448eea3879
   Firebase: ff8c73105b90e33e1dc6c8e5445d7adc2ccdc7c1
@@ -581,8 +594,11 @@ SPEC CHECKSUMS:
   MessageKit: d153fbbbcb12f3f4045a1ba8874298924dacfb62
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
   PromisesObjC: 68159ce6952d93e17b2dfe273b8c40907db5ba58
+  PryntTrimmerView: 6a43cc90df5d99addeabd33d4ba09b1365322130
   SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
+  SteviaLayout: c2ecdcff57d44e38fd2f65e54ad52aeae28ca0c4
+  YPImagePicker: 1463a19a36244e209dcb03c30e63559c5afa9602
 
-PODFILE CHECKSUM: b979a12e67c214038f2fedb307705a3e0c8d72fd
+PODFILE CHECKSUM: 44b7df20e20f9507e567e88f24de53cc847e0cbf
 
 COCOAPODS: 1.10.1

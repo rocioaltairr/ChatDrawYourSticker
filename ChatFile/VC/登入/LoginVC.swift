@@ -7,7 +7,6 @@
 
 import UIKit
 import FirebaseAuth
-import JGProgressHUD
 
 
 class LoginVC: UIViewController,UITextFieldDelegate {
@@ -99,19 +98,17 @@ class LoginVC: UIViewController,UITextFieldDelegate {
             //guard let email = txtFieldEmail.text else { return }
             guard let password = txtFieldPassword.text else { return }
             
-            let hud = JGProgressHUD(style: .dark)
-            hud.textLabel.text = "Loading"
-            hud.show(in: self.view)
+            LoadingUtil.showWithTitle(title: "請稍候..")
             AuthManager.shared.logUserIn(withEmail:email,password:password) { (result, error) in
                 if error != nil {
                     AlertUtil.showMessage(message: "登入失敗\(error?.localizedDescription ?? "")")
-                    hud.dismiss()
+                    LoadingUtil.hideView()
                     //self.showError("email格式錯誤，密碼超過6個字，如還沒申請帳號請去下方申請！")
 
                     return
                 }
                 self.navigationController?.pushViewController(vc, animated: true)
-                hud.dismiss()
+                LoadingUtil.hideView()
                 
             }
         }

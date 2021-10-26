@@ -33,9 +33,9 @@ class ChatCVC: UICollectionViewController {
     func setUpHeader() {
         let viewWidth = self.view.bounds.size.width
         let vwTop = UIView(frame: CGRect(x: 0, y:-UIScreen.SAFE_AREA_TOP, width: viewWidth, height: UIScreen.SAFE_AREA_TOP + 15))
-        let vwHeader = UIView(frame: CGRect(x: 0, y:15, width: viewWidth, height: 60))
-        let lbHeader = UILabel(frame: CGRect(x: 0, y:25, width: viewWidth , height: 20))
-        let btnBack = UIButton(frame: CGRect(x: 18, y: 15, width: 40 , height: 40))
+        let vwHeader = UIView(frame: CGRect(x: 0, y:0, width: viewWidth, height: 60))
+        let lbHeader = UILabel(frame: CGRect(x: 0, y:0, width: viewWidth , height: 20))
+        let btnBack = UIButton(frame: CGRect(x: 12, y: 0, width: 60 , height: 60))
         btnBack.setImage(UIImage(named: "navBack"), for: .normal)
         btnBack.addTarget(self, action: #selector(action_back(_:)), for: .touchUpInside)
         
@@ -157,6 +157,18 @@ extension ChatCVC: UICollectionViewDelegateFlowLayout {
 }
 
 extension ChatCVC: CustomInputAccessoryViewDelegate {
+    func presentAdd() {
+        print("DEBUG:ADD")
+    }
+
+    func presentCameraInput() {
+        self.presentPhotoPicker()//拍照
+    }
+
+    func presentAlbum() {
+        self.presentAlbum()//照片
+    }
+        
     func inputView(_ inputView: CustomInputAccessoryView, wantsToSend message: String) {
         // upload
         UserManager.uploadMessage(message, to:user, fileName: "") { error in
@@ -171,20 +183,7 @@ extension ChatCVC: CustomInputAccessoryViewDelegate {
         inputView.clearSendMessage()
     }
     
-    func presentActionSheet() {
-        let actionSheet =  UIAlertController(title: "Attach Media", message: "What would you like to attach?", preferredStyle: .actionSheet)
-        actionSheet.addAction(UIAlertAction(title: "Photo", style: .default, handler: { [weak self] _ in
-            self?.presentPhotoPicker()
-        }))
-        actionSheet.addAction(UIAlertAction(title: "Camera", style: .default, handler: { [weak self] _ in
-            self?.presentCamera()
-            
-        }))
 
-        actionSheet.addAction(UIAlertAction(title: "Cancel", style: .default, handler: nil))
-        
-        present(actionSheet, animated: true, completion: nil)
-    }
 }
   
 

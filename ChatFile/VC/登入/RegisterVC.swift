@@ -200,7 +200,6 @@ class RegisterVC: UIViewController, UITextFieldDelegate
                 return
             }
             
-            
             ref.downloadURL { (url, error) in
                 let profileImageUrl = ref.fullPath
                 // 創造user 需要存在database的image路徑

@@ -21,6 +21,7 @@
 		6D3EF23B27003D9E00EA79AE /* MyProfileVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6D3EF23927003D9E00EA79AE /* MyProfileVC.xib */; };
 		6D7269A127204239001CB4D7 /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D7269A027204239001CB4D7 /* ImageCache.swift */; };
 		6D919BC32719ACA800B30AFC /* StyleUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D919BC22719ACA800B30AFC /* StyleUtil.swift */; };
+		6D9FCBF02726B39400C1CE16 /* LoadingUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9FCBEF2726B39400C1CE16 /* LoadingUtil.swift */; };
 		6DA3F4D926FF536D002E2D86 /* UserViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DA3F4D826FF536D002E2D86 /* UserViewModel.swift */; };
 		6DA3F4DB26FF57BE002E2D86 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6DA3F4DA26FF57BE002E2D86 /* GoogleService-Info.plist */; };
 		6DA4F961271C48A400D9C2F1 /* MessageCVCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DA4F960271C48A400D9C2F1 /* MessageCVCell.swift */; };
@@ -64,6 +65,7 @@
 		6DD6E09326C51D4C00EDD718 /* ConversationVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6DD6E09126C51D4C00EDD718 /* ConversationVC.xib */; };
 		6DD6E09726C51FE100EDD718 /* ConversationsTbvCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DD6E09526C51FE100EDD718 /* ConversationsTbvCell.swift */; };
 		6DD6E09826C51FE100EDD718 /* ConversationsTbvCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6DD6E09626C51FE100EDD718 /* ConversationsTbvCell.xib */; };
+		6DEEF72F2725865200825E95 /* ExampleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEEF72E2725865200825E95 /* ExampleViewController.swift */; };
 		8563B6BC8E2B1BBFE1117EF5 /* Pods_ChatFile.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1B87437E217ABF06432C2096 /* Pods_ChatFile.framework */; };
 /* End PBXBuildFile section */
 
@@ -85,6 +87,7 @@
 		6D3EF23927003D9E00EA79AE /* MyProfileVC.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MyProfileVC.xib; sourceTree = "<group>"; };
 		6D7269A027204239001CB4D7 /* ImageCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCache.swift; sourceTree = "<group>"; };
 		6D919BC22719ACA800B30AFC /* StyleUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StyleUtil.swift; sourceTree = "<group>"; };
+		6D9FCBEF2726B39400C1CE16 /* LoadingUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingUtil.swift; sourceTree = "<group>"; };
 		6DA3F4D826FF536D002E2D86 /* UserViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserViewModel.swift; sourceTree = "<group>"; };
 		6DA3F4DA26FF57BE002E2D86 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		6DA4F960271C48A400D9C2F1 /* MessageCVCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageCVCell.swift; sourceTree = "<group>"; };
@@ -130,6 +133,7 @@
 		6DD6E09126C51D4C00EDD718 /* ConversationVC.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ConversationVC.xib; sourceTree = "<group>"; };
 		6DD6E09526C51FE100EDD718 /* ConversationsTbvCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationsTbvCell.swift; sourceTree = "<group>"; };
 		6DD6E09626C51FE100EDD718 /* ConversationsTbvCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ConversationsTbvCell.xib; sourceTree = "<group>"; };
+		6DEEF72E2725865200825E95 /* ExampleViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExampleViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -316,6 +320,7 @@
 				6DAD79502700D20C00DDF307 /* 搜尋 */,
 				6DAD79532700D26A00DDF307 /* 我的 */,
 				6DD6E08B26C51B7600EDD718 /* 聊天 */,
+				6DEEF72E2725865200825E95 /* ExampleViewController.swift */,
 			);
 			path = VC;
 			sourceTree = "<group>";
@@ -352,6 +357,7 @@
 				6D3EF2362700335500EA79AE /* AlertUtil.swift */,
 				6D919BC22719ACA800B30AFC /* StyleUtil.swift */,
 				6D7269A027204239001CB4D7 /* ImageCache.swift */,
+				6D9FCBEF2726B39400C1CE16 /* LoadingUtil.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -536,6 +542,7 @@
 				6DD6E03F26C507D300EDD718 /* ViewController.swift in Sources */,
 				6DD6E06026C50CB400EDD718 /* FirstVC.swift in Sources */,
 				6DD6E08A26C519DC00EDD718 /* User.swift in Sources */,
+				6D9FCBF02726B39400C1CE16 /* LoadingUtil.swift in Sources */,
 				6DA4F961271C48A400D9C2F1 /* MessageCVCell.swift in Sources */,
 				6DA4F968271C8B1500D9C2F1 /* ChatMessageKitVC.swift in Sources */,
 				6DD6E03B26C507D300EDD718 /* AppDelegate.swift in Sources */,
@@ -545,6 +552,7 @@
 				6D7269A127204239001CB4D7 /* ImageCache.swift in Sources */,
 				6DD6E08226C5197200EDD718 /* RegistrationViewModel.swift in Sources */,
 				6DD6E06F26C5181200EDD718 /* UserManager.swift in Sources */,
+				6DEEF72F2725865200825E95 /* ExampleViewController.swift in Sources */,
 				6DD6E05626C508D400EDD718 /* SensorMainSection.swift in Sources */,
 				6DD6E05926C508D400EDD718 /* SensorMainCVCell.swift in Sources */,
 				6DA3F4D926FF536D002E2D86 /* UserViewModel.swift in Sources */,

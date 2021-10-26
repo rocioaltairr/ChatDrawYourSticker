@@ -12,7 +12,7 @@ struct AuthService {
     static let shared = AuthService() // make usure we use the same instance and not to create it multiple time.
     func logUserIn(withEmail email:String, password:String,completion: AuthDataResultCallback?) {
         Auth.auth().signIn(withEmail: email, password: password) { (result, error) in
-            if let error = error {
+            if error != nil {
                 //print("DEBUG: Faild to log in with error. \(error.localizedDescription)")
                 return
             }

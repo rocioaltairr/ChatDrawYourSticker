@@ -14,6 +14,9 @@ target 'ChatFile' do
   pod 'MessageKit'
   pod 'GoogleSignIn'
   pod 'Firebase/Database'
+  pod 'ALCameraViewController'
+  
+  pod 'YPImagePicker'
   use_frameworks!
 
   # Pods for ChatFile

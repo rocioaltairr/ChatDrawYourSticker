@@ -8,7 +8,13 @@
 import Firebase
 import FirebaseFirestore
 import FirebaseAuth
-
+//db.collection("songs").order(by: "rate").limit(to: 2).getDocuments { (querySnapshot, error) in
+//   if let querySnapshot = querySnapshot {
+//      for document in querySnapshot.documents {
+//         print(document.data())
+//      }
+//   }
+//}
 class UserManager {
     //static let shared = UserManager()
     // 最最最最最新
@@ -18,8 +24,8 @@ class UserManager {
         guard let currentUid = Auth.auth().currentUser?.uid else { return }
         COLLECTION_MESSAGES.document(currentUid).collection(user.uid).order(by: "timestamp").addSnapshotListener { (snapshot, error) in
             messages.removeAll()
-            snapshot?.documents.forEach({ (document) in
-                let newMessages = document.data()
+            snapshot?.documents.forEach({ (change) in
+                let newMessages = change.data()
                 messages.append(MessageFirebase(dictionary: newMessages))
             })
             completion(messages)
@@ -35,6 +41,9 @@ class UserManager {
         let query = COLLECTION_MESSAGES.document(currentUid).collection("recent-messages").order(by: "timestamp")
         
         query.addSnapshotListener { (snapshot, error) in // 每次database有增加東西就觸發
+            if snapshot?.documents.count == 0 {
+                completion(conversations)
+            }
             conversations.removeAll()
             snapshot?.documentChanges.forEach({ change in
                 let newMessages = change.document.data()
@@ -54,14 +63,13 @@ class UserManager {
                         //conversations.insert(conversation, at: 0) // 最早的要在上面
                         
                     }
-                    
                     completion(conversations)
                 }
                 
             })
         }
     }
-    
+    /*
     // MARK: - 抓取更動的Coversation資料
     static func fetchNewConversations(completion: @escaping([Conversation]) -> Void) {
         var conversations = [Conversation]()
@@ -95,7 +103,7 @@ class UserManager {
                 
             })
         }
-    }
+    }*/
     
     // MARK: - 抓取自己使用者
     static func fetchUsers(completion: @escaping([User]) -> Void) {
@@ -154,12 +162,13 @@ class UserManager {
     // MARK: - 上傳聊天訊息
     static func uploadMessage(_ message: String, to user: User,fileName:String, completion: ((Error?) -> Void)?) {
         guard let currentUid = Auth.auth().currentUser?.uid else { return }
+        let idMSG = "messageId\(NSUUID().uuidString)"
         let data = ["text": message,
                     "fromID":currentUid,
                     "toID":user.uid,
                     "timestamp": Timestamp(date: Date()),
                     "isRead":false,
-                    "messageId":"",
+                    "messageId":idMSG,
                     "mssageImageUrl":fileName] as [String:Any]
         COLLECTION_MESSAGES.document(currentUid).collection(user.uid).addDocument(data: data) { _ in
             COLLECTION_MESSAGES.document(user.uid).collection(currentUid).addDocument(data: data,completion: completion)
@@ -229,7 +238,7 @@ class StorageManager {
             }
             
             self.storage.child("images/\(fileName)").downloadURL { url, error in
-                guard let url = url else {
+                guard url != nil else {
                     print("faild to get download url")
                     
                     return

@@ -9,82 +9,96 @@ import UIKit
 import FirebaseAuth
 import Firebase
 import FirebaseStorage
-import JGProgressHUD
 class ConversationVC: UIViewController {
-
-    
     @IBOutlet weak var tbvMain: UITableView!
     @IBOutlet weak var searchBar: UISearchBar!
     
     var currentUser : User?
     var otherUsers:[User]? = []
-    
-    let hud = JGProgressHUD(style: .dark)
+
     var nsCache = NSCache<NSString, ImageCache>()
     private var messages = [Message]()
     var conversations:[Conversation]?
     var conversation:Conversation?
     
+    var firstTime:Bool = true
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        hud.textLabel.text = "Loading"
-        hud.show(in: self.view)
-        searchBar.textField?.font = UIFont.systemFont(ofSize: 12)
-        
-        self.tbvMain.allowsSelection = true
+        LoadingUtil.showWithTitle(title: "請稍候")
+        searchBar.textField?.font = UIFont.systemFont(ofSize: 15)
+        tbvMain.separatorStyle = .none
+       // self.tbvMain.allowsSelection = true
         self.tbvMain.delegate = self
         self.tbvMain.dataSource = self
         self.tbvMain.register(UINib(nibName: "ConversationsTbvCell", bundle: nil), forCellReuseIdentifier: "ConversationsTbvCell")
         fetchCurrentUser()
+        //fetchUserAndLastMessage()
         
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        //fetchAllConversation()
-        fetchUserAndLastMessage()
+        fetchAllConversation()
     }
+    
     
     func fetchAllConversation() {
-        
         UserManager.fetchConversations {[weak self] con in
             guard let self = self else { return }
-            self.hud.textLabel.text = "Loading"
-            self.hud.show(in: self.view)
-            
-            self.conversations = con
-            self.conversations = self.conversations?.sorted(by: {$0.message.timestamp.dateValue() > $1.message.timestamp.dateValue()}) // 排序最早的在前面
-            self.tbvMain.reloadData()
-        }
-    }
-    
-    func fetchUserAndLastMessage() {
-        UserManager.fetchNewConversations {[weak self] con in
-            guard let self = self else { return }
-//            self.hud.textLabel.text = "Loading"
-//            self.hud.show(in: self.view)
-            if con.count == 1 { // 如果只有1代表為更新的資料
-                self.conversations = con
-//                for i in 0..<self.conversations!.count {
-//                    if self.conversations?[i].message.user?.username == self.conversation?.message.user?.username {
-//                        //self.conversations?.remove(at: i)
-//                        self.conversations?[i] = con[0]
-//                        //self.conversations?.insert(contentsOf: con, at: 0)
-//                        return
-//                    }
-//                }
-            } else {
-                self.conversations = con
+            if con.count == 0 {
+                LoadingUtil.hideView()
+                return
             }
-            //self.conversations = con
-//            for i in 0..<self.conversations!.count {
-//                if self.conversations?[i].message.user?.uid == self.conversation?.message.user?.uid {
-//                    self.conversations?.remove(at: i)
-//                    self.conversations?.insert(self.conversation!, at: 0)
-//                    self.conversations = self.conversations?.sorted(by: {$0.message.timestamp.dateValue() >  $1.message.timestamp.dateValue()}) // 排序最早的在前面
-//                    self.tbvMain.reloadData()
-//                }
-//
-//            }
+            if self.firstTime == true {
+                self.conversations = con
+                self.firstTime = false
+            } else {
+                if con.count == 1 {
+
+                    // 如果是新的加入到conversation
+                    var isNewCon  = true
+                    for i in 0..<self.conversations!.count {
+                        if self.conversations?[i].message.isFromCurrentUser == false {
+                            if self.conversations?[i].message.toID == con[0].message.toID {
+                                isNewCon = false
+                            }
+                        } else {
+                            if self.conversations?[i].message.fromID == con[0].message.fromID {
+                                isNewCon = false
+                            }
+                        }
+                    }
+                    
+                    if isNewCon == true {
+                        self.conversations?.append(con[0])
+                    } else {
+                        for i in 0..<self.conversations!.count {
+
+                            if self.conversations?[i].message.isFromCurrentUser == false { // 如果是從我這邊
+                                if self.conversations?[i].message.toID == con[0].message.toID {
+                                    self.conversations?.remove(at: i)
+                                    self.conversations?.insert(con[0], at: 0)
+                                    self.conversations = self.conversations?.sorted(by: {$0.message.timestamp.dateValue() > $1.message.timestamp.dateValue()}) // 排序最早的在前面
+                                    self.tbvMain.reloadData()
+                                    return
+                                }
+
+                            } else {
+                                if self.conversations?[i].message.fromID == con[0].message.fromID {
+                                    self.conversations?.remove(at: i)
+                                    self.conversations?.insert(con[0], at: 0)
+                                    self.conversations = self.conversations?.sorted(by: {$0.message.timestamp.dateValue() > $1.message.timestamp.dateValue()}) // 排序最早的在前面
+                                    self.tbvMain.reloadData()
+                                    return
+                                }
+                            }
+                        }
+                    }
+
+                } else {
+                    self.conversations = con
+                }
+            }
             
             self.conversations = self.conversations?.sorted(by: {$0.message.timestamp.dateValue() > $1.message.timestamp.dateValue()}) // 排序最早的在前面
             self.tbvMain.reloadData()
@@ -101,9 +115,7 @@ class ConversationVC: UIViewController {
                 if error != nil {
                     print("DEBUG: 取得 Storage 圖片失敗")
                 } else {
-                    let cacheImage = ImageCache()
-                    cacheImage.image = UIImage(data: data!)
-                    self.nsCache.setObject(cacheImage, forKey: "currentUserImage" as NSString)
+                    UserDefaultUtil.save(key: "currentUserImage", saveObj: data!)
                 }
             }
         }
@@ -112,17 +124,40 @@ class ConversationVC: UIViewController {
 
     @IBAction func action_MyProfile(_ sender: Any) {
         let vc = MyProfileVC()
+
         vc.nsCache = self.nsCache
-        self.navigationController?.pushViewController(vc, animated: true)
+        let transition = CATransition()
+            transition.duration = 0.5
+        transition.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
+        transition.type = CATransitionType.moveIn
+        transition.subtype = CATransitionSubtype.fromTop
+            navigationController?.view.layer.add(transition, forKey: nil)
+            navigationController?.pushViewController(vc, animated: false)
     }
     
+    // MARK: - 登出
     @IBAction func action_logout(_ sender: Any) {
-        AuthManager.shared.logUserOut()
-        self.navigationController?.popViewController(animated: true)
+       // AlertUtil.showMessage(message: "確認登出？")
+        AlertUtil.strBtnCancel = "取消"
+        AlertUtil.showMessage(message: "確認登出？") { alert in
+            AuthManager.shared.logUserOut()
+            self.navigationController?.popViewController(animated: true)
+        } cancelHandler: { alert in
+            print("")
+        }
     }
+    
+    // MARK: - 搜尋othersUser（使用者們）
     @IBAction func action_search(_ sender: Any) {
+        
         let vc = SearchVC()
-        self.navigationController?.pushViewController(vc, animated: true)
+        let transition = CATransition()
+            transition.duration = 0.5
+        transition.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
+        transition.type = CATransitionType.moveIn
+        transition.subtype = CATransitionSubtype.fromTop
+            navigationController?.view.layer.add(transition, forKey: nil)
+            navigationController?.pushViewController(vc, animated: false)
     }
     
     @objc func dismissKeyBoard() {
@@ -134,7 +169,7 @@ class ConversationVC: UIViewController {
 extension ConversationVC: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if conversations != nil {
-            hud.dismiss()
+            LoadingUtil.hideView()
             return conversations!.count
             
         } else {
@@ -142,8 +177,9 @@ extension ConversationVC: UITableViewDelegate, UITableViewDataSource {
         }
     }
     
+    
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 60
+        return 65
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -153,46 +189,35 @@ extension ConversationVC: UITableViewDelegate, UITableViewDataSource {
         cell.lbMessage.text = conversations?[indexPath.row].message.text
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "HH:mm"
+        cell.selectionStyle = .none
         cell.lbTime.text = dateFormatter.string(from: conversations?[indexPath.row].message.timestamp.dateValue() ?? Date())
-        
-   
-        if let cachedVersion = nsCache.object(forKey: "otherUserImage\(self.conversations![indexPath.row].user.uid)" as NSString) { // 如果cache 沒照片再去抓
-
-            cell.vwImg.image = cachedVersion.image
-        } else {
-            cell.vwImg.image = nil
-            let ref = Storage.storage().reference().child(conversations![indexPath.row].imgUrl)
-            ref.getData(maxSize: 1 * 1024 * 1024) { data, error in
-                if error != nil {
-                    print("DEBUG: 取得 Storage 圖片失敗")
-                } else {
-                    
-                    DispatchQueue.main.async {
-                        cell.vwImg.image = UIImage(data: data!)
-                        let cacheImage = ImageCache()
-                        cacheImage.image = UIImage(data: data!)
-                        if let cons = self.conversations {
-                            self.nsCache.setObject(cacheImage, forKey: "otherUserImage\(cons[indexPath.row].user.uid)" as NSString)
-                        }
+  
+        if let cons = self.conversations {
+            if let otherImageData = UserDefaults.standard.data(forKey: "otherUserImage\(cons[indexPath.row].user.uid)") {
+                    cell.vwImg.image = UIImage(data: otherImageData)
+            } else {
+                let ref = Storage.storage().reference().child(conversations![indexPath.row].imgUrl)
+                ref.getData(maxSize: 1 * 1024 * 1024) { data, error in
+                    if error != nil {
+                        print("DEBUG: 取得 Storage 圖片失敗")
+                    } else {
+                        UserDefaultUtil.save(key: "otherUserImage\(cons[indexPath.row].user.uid)", saveObj: data!)
                     }
                 }
             }
-        }
-
-        cell.selectionStyle = .none
-        if indexPath.row == conversations!.count - 1 {
-            self.hud.dismiss()
+            if indexPath.row == cons.count - 1 {
+                LoadingUtil.hideView()
+            }
         }
         return cell
     }
     
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-
         let cv = ChatMessageKitVC()
         cv.currentUser = currentUser
         cv.otherUser = conversations?[indexPath.row].user
-        cv.nsCache = self.nsCache
+        //cv.nsCache = self.nsCache
         self.navigationController?.pushViewController(cv, animated: true)
     }
 }
