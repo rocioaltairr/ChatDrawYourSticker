@@ -26,31 +26,36 @@
                             <constraint firstAttribute="width" constant="50" id="xv5-sC-0tv"/>
                         </constraints>
                     </imageView>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="下午12:00" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QOj-ML-FXG">
-                        <rect key="frame" x="252" y="12" width="52" height="13.5"/>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="12:00" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QOj-ML-FXG">
+                        <rect key="frame" x="274" y="12" width="30" height="14"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="30" id="AAG-ht-zma"/>
+                        </constraints>
                         <fontDescription key="fontDescription" type="system" pointSize="11"/>
                         <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <nil key="highlightedColor"/>
                     </label>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GN0-aI-pGQ">
-                        <rect key="frame" x="78" y="31.5" width="37.5" height="18"/>
+                        <rect key="frame" x="78" y="31.5" width="192" height="18"/>
                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                         <color key="textColor" systemColor="systemGray2Color"/>
                         <nil key="highlightedColor"/>
                     </label>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="liB-as-MPd">
-                        <rect key="frame" x="78" y="12" width="41.5" height="19.5"/>
+                        <rect key="frame" x="78" y="12" width="180" height="19.5"/>
                         <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="16"/>
                         <nil key="textColor"/>
                         <nil key="highlightedColor"/>
                     </label>
                 </subviews>
                 <constraints>
+                    <constraint firstItem="QOj-ML-FXG" firstAttribute="leading" secondItem="liB-as-MPd" secondAttribute="trailing" constant="16" id="1IW-gW-0vx"/>
                     <constraint firstItem="liB-as-MPd" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="12" id="AdU-O5-9Rp"/>
+                    <constraint firstItem="liB-as-MPd" firstAttribute="leading" secondItem="gPm-Z6-rp6" secondAttribute="trailing" constant="16" id="BIX-m4-Nd8"/>
                     <constraint firstItem="gPm-Z6-rp6" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="CEE-8S-UYc"/>
-                    <constraint firstItem="GN0-aI-pGQ" firstAttribute="leading" secondItem="gPm-Z6-rp6" secondAttribute="trailing" constant="16" id="PSl-mN-YWq"/>
                     <constraint firstItem="GN0-aI-pGQ" firstAttribute="top" secondItem="liB-as-MPd" secondAttribute="bottom" id="PfS-vM-qWO"/>
-                    <constraint firstItem="liB-as-MPd" firstAttribute="leading" secondItem="gPm-Z6-rp6" secondAttribute="trailing" constant="16" id="RTd-hI-bzb"/>
+                    <constraint firstAttribute="trailing" secondItem="GN0-aI-pGQ" secondAttribute="trailing" constant="50" id="RO2-79-k5A"/>
+                    <constraint firstItem="GN0-aI-pGQ" firstAttribute="leading" secondItem="gPm-Z6-rp6" secondAttribute="trailing" constant="16" id="UTZ-UZ-efs"/>
                     <constraint firstItem="gPm-Z6-rp6" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="12" id="Vcw-74-xqC"/>
                     <constraint firstItem="QOj-ML-FXG" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="12" id="YAP-w7-r0a"/>
                     <constraint firstAttribute="trailing" secondItem="QOj-ML-FXG" secondAttribute="trailing" constant="16" id="b9R-3G-OAM"/>

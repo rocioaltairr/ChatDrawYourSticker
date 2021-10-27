@@ -8,6 +8,10 @@
 import Foundation
 import MessageKit
 import Firebase
+import FirebaseCore
+import FirebaseStorage
+import FirebaseDatabase
+import FirebaseFirestore
 
 struct SenderNew:SenderType {
     var senderId:String
@@ -29,7 +33,7 @@ struct MessageFirebase {
     /// 發給誰
     var fromID: String?
     /// 誰發的
-    var timestamp: Timestamp!
+    var timestamp: Timestamp
     var user: User?
     var isRead: Bool?
     var messageId: String?

@@ -9,6 +9,7 @@ import UIKit
 import FirebaseAuth
 import Firebase
 import FirebaseStorage
+
 class ConversationVC: UIViewController {
     @IBOutlet weak var tbvMain: UITableView!
     @IBOutlet weak var searchBar: UISearchBar!
@@ -25,7 +26,8 @@ class ConversationVC: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-       // LoadingUtil.showWithTitle(title: "請稍候")
+        LodingActivityIndicatorUtil.shared.showLoader(view: self.view)
+
         searchBar.textField?.font = UIFont.systemFont(ofSize: 15)
         tbvMain.separatorStyle = .none
        // self.tbvMain.allowsSelection = true
@@ -47,7 +49,7 @@ class ConversationVC: UIViewController {
         UserManager.fetchConversations {[weak self] con in
             guard let self = self else { return }
             if con.count == 0 {
-                LoadingUtil.hideView()
+                LodingActivityIndicatorUtil.shared.hideLoader()
                 return
             }
             if self.firstTime == true {
@@ -80,6 +82,8 @@ class ConversationVC: UIViewController {
                                     self.conversations?.remove(at: i)
                                     self.conversations?.insert(con[0], at: 0)
                                     self.conversations = self.conversations?.sorted(by: {$0.message.timestamp.dateValue() > $1.message.timestamp.dateValue()}) // 排序最早的在前面
+                                    
+                                    //self.conversations = self.conversations?.unique{$0.message.timestamp.dateValue()}
                                     self.tbvMain.reloadData()
                                     return
                                 }
@@ -89,6 +93,7 @@ class ConversationVC: UIViewController {
                                     self.conversations?.remove(at: i)
                                     self.conversations?.insert(con[0], at: 0)
                                     self.conversations = self.conversations?.sorted(by: {$0.message.timestamp.dateValue() > $1.message.timestamp.dateValue()}) // 排序最早的在前面
+                                    //self.conversations = self.conversations?.unique{$0.message.timestamp.dateValue()}
                                     self.tbvMain.reloadData()
                                     return
                                 }
@@ -101,6 +106,7 @@ class ConversationVC: UIViewController {
                 }
             }
             
+           // self.conversations = self.conversations?.unique{$0.message.timestamp.dateValue()}
             self.conversations = self.conversations?.sorted(by: {$0.message.timestamp.dateValue() > $1.message.timestamp.dateValue()}) // 排序最早的在前面
             self.tbvMain.reloadData()
         }
@@ -125,8 +131,7 @@ class ConversationVC: UIViewController {
 
     @IBAction func action_MyProfile(_ sender: Any) {
         let vc = MyProfileVC()
-
-        vc.nsCache = self.nsCache
+        vc.userType = .currentUser
         let transition = CATransition()
             transition.duration = 0.5
         transition.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
@@ -170,7 +175,7 @@ class ConversationVC: UIViewController {
 extension ConversationVC: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if conversations != nil {
-            LoadingUtil.hideView()
+            LodingActivityIndicatorUtil.shared.hideLoader()
             return conversations!.count
             
         } else {
@@ -207,7 +212,8 @@ extension ConversationVC: UITableViewDelegate, UITableViewDataSource {
                 }
             }
             if indexPath.row == cons.count - 1 {
-                LoadingUtil.hideView()
+                LodingActivityIndicatorUtil
+                    .shared.hideLoader()
             }
         }
         return cell

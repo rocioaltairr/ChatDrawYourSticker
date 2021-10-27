@@ -17,7 +17,8 @@ public final class LodingActivityIndicatorUtil: NSObject {
     )
     
     override init() {
-        self.activityIndicator.color = .systemBlue
+        self.activityIndicator.color = #colorLiteral(red: 0.1136083528, green: 0.4844732285, blue: 0.999712646, alpha: 0.5935684096)
+        activityIndicator.type = .ballScaleMultiple
         activityIndicator.startAnimating()
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
     }
@@ -50,7 +51,7 @@ public final class UpLodingActivityIndicatorUtil: NSObject {
     )
     
     override init() {
-        self.activityIndicator.color = .systemBlue
+        self.activityIndicator.color = #colorLiteral(red: 0.1136083528, green: 0.4844732285, blue: 0.999712646, alpha: 0.5935684096)
         activityIndicator.startAnimating()
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
     }

@@ -55,5 +55,4 @@ extension UICollectionView {
             self.collectionViewLayout = layout
         }
     }
-    
 }

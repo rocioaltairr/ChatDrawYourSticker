@@ -93,11 +93,10 @@ class LoginVC: UIViewController,UITextFieldDelegate {
 //            vwTestField.isHidden = true
             
         } else {//     填入passworld時
-            let vc = ConversationVC()
-            let email = strEmail
+           
             //guard let email = txtFieldEmail.text else { return }
             guard let password = txtFieldPassword.text else { return }
-            
+            let email = strEmail
             LoadingUtil.showWithTitle(title: "請稍候..")
             AuthManager.shared.logUserIn(withEmail:email,password:password) { (result, error) in
                 if error != nil {
@@ -106,10 +105,13 @@ class LoginVC: UIViewController,UITextFieldDelegate {
                     //self.showError("email格式錯誤，密碼超過6個字，如還沒申請帳號請去下方申請！")
                     return
                 }
+                let vc = ConversationVC()
+                
                 self.navigationController?.pushViewController(vc, animated: true)
                 LoadingUtil.hideView()
                 
             }
+            
         }
 
     }

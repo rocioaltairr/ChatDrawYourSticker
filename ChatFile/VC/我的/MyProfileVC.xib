@@ -11,6 +11,7 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="MyProfileVC" customModule="ChatFile" customModuleProvider="target">
             <connections>
+                <outlet property="btnLogOut" destination="0WZ-uc-JaW" id="HL6-M8-Yz2"/>
                 <outlet property="imgBackground" destination="j9t-fa-Cgv" id="ACK-bb-MKG"/>
                 <outlet property="lbEmail" destination="3tN-Hs-Qul" id="mf5-U2-LZt"/>
                 <outlet property="lbFullName" destination="JF5-dM-QR6" id="Tl0-Ym-0FE"/>

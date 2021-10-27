@@ -15,6 +15,11 @@ enum ProfileImageType {
     case userBackground
 }
 
+enum UserType {
+    case currentUser
+    case otherUser
+}
+
 class MyProfileVC: UIViewController {
 
     @IBOutlet weak var vwProfileImg: UIImageView!
@@ -22,13 +27,16 @@ class MyProfileVC: UIViewController {
     @IBOutlet weak var lbFullName: UILabel!
     @IBOutlet weak var lbName: UILabel!
     @IBOutlet weak var imgBackground: UIImageView!
+    @IBOutlet weak var btnLogOut: StyleButton!
     
-    var nsCache = NSCache<NSString, ImageCache>()
     var currentUser:User?
     
     var imagePickerUser = UIImagePickerController()
     var imagePickerBackground = UIImagePickerController()
     var imageType: ProfileImageType = .userProfile
+    
+    var userType: UserType = .currentUser
+    var otherUser: User? // 對方
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -44,13 +52,49 @@ class MyProfileVC: UIViewController {
         vwProfileImg.layer.cornerRadius = vwProfileImg.frame.height/2
         vwProfileImg.clipsToBounds = true
         
-        fetchUserData()
-        vwProfileImg.image = UIImage(data: UserDefaultUtil.loadData(key: "currentUserImage"))
-        imgBackground.image = UIImage(data: UserDefaultUtil.loadData(key: "currentUserBackgroundImage"))
-
+        if userType == .currentUser {
+            fetchUserData()
+        } else {
+            btnLogOut.isHidden = true
+            fetchOtherUserData()
+        }
     }
     
-    override func viewWillAppear(_ animated: Bool) {
+
+    // MARK: - 取得對方資料
+    func fetchOtherUserData() {
+        UserManager.fetchUser(whitUid: otherUser?.uid ?? "") { user in
+            self.currentUser = user
+            self.lbFullName.text = user.username
+            self.lbName.text = "HI~各位"
+        
+            if UserDefaults.standard.data(forKey: "otherUserImage\(user.uid)") == nil { // 如果沒有還沒存入UserDefult，就去firebase抓圖
+                let refUser = Storage.storage().reference().child("\(user.profileImageUrl)")
+                refUser.getData(maxSize: 1 * 1024 * 1024) { data, error in //取得使用者大頭貼照
+                    if error != nil { print("DEBUG: 取得 Storage 使用者背景照 圖片失敗") }
+                    if let imgData = data {
+                        self.vwProfileImg.image = UIImage(data: imgData)
+                        UserDefaultUtil.save(key: "otherUserImage\(user.uid)", saveObj: imgData)
+                    }
+                }
+            } else {
+                self.vwProfileImg.image = UIImage(data: UserDefaults.standard.data(forKey: "otherUserImage\(user.uid)")!)
+            }
+
+            if  UserDefaults.standard.data(forKey: "BackgroundImage\(user.profileImageUrl)") == nil {
+                let ref = Storage.storage().reference().child("BackgroundImage\(user.profileImageUrl)")
+                ref.getData(maxSize: 1 * 1024 * 1024) { data, error in //取得使用者背景照
+                    if error != nil { print("DEBUG: 取得 Storage 使用者背景照 圖片失敗 \(error?.localizedDescription ?? "")")}
+                    if let imgData = data {
+                        self.imgBackground.image = UIImage(data: imgData)
+                        UserDefaultUtil.save(key: "BackgroundImage\(user.profileImageUrl)", saveObj: imgData)
+                    }
+                }
+            } else {
+                self.vwProfileImg.image = UIImage(data: UserDefaults.standard.data(forKey: "BackgroundImage\(user.profileImageUrl)")!)
+            }
+        }
+        
     }
 
     // MARK: - 取得使用者資料
@@ -70,6 +114,8 @@ class MyProfileVC: UIViewController {
                         UserDefaultUtil.save(key: "currentUserImage", saveObj: imgData)
                     }
                 }
+            } else {
+                self.vwProfileImg.image = UIImage(data: UserDefaultUtil.loadData(key: "currentUserImage"))
             }
 
             if  UserDefaults.standard.data(forKey: "currentUserBackgroundImage") == nil {
@@ -81,10 +127,13 @@ class MyProfileVC: UIViewController {
                         UserDefaultUtil.save(key: "currentUserBackgroundImage", saveObj: imgData)
                     }
                 }
+            } else {
+                self.imgBackground.image = UIImage(data: UserDefaultUtil.loadData(key: "currentUserBackgroundImage"))
             }
         }
     }
     
+    // MARK: - 選擇照片
     func selectImgAlert() {
         let alert = UIAlertController(title: "請選擇照片", message: "您想怎麼加入照片呢？", preferredStyle: .actionSheet)
         alert.addAction(UIAlertAction(title: "取消", style: .cancel, handler: nil))
@@ -100,25 +149,33 @@ class MyProfileVC: UIViewController {
     
     // MARK: - 設定頭像圖片
     @IBAction func action_setUserImage(_ sender: Any) {
-        imageType = .userProfile
-        self.selectImgAlert()
+        if userType == .currentUser {
+            imageType = .userProfile
+            self.selectImgAlert()
+        }
     }
     
     // MARK: - 設定背景圖片
     @IBAction func action_setBackgroundImage(_ sender: Any) {
-        imageType = .userBackground
-        self.selectImgAlert()
+        if userType == .currentUser {
+            imageType = .userProfile
+            self.selectImgAlert()
+        }
     }
     
     // MARK: - 關閉VC
     @IBAction func action_close(_ sender: Any) {
-        let transition = CATransition()
-        transition.duration = 0.3
-        transition.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
-        transition.type = CATransitionType.reveal
-        transition.subtype = CATransitionSubtype.fromBottom
-        navigationController?.view.layer.add(transition, forKey: nil)
-        _ = navigationController?.popViewController(animated: false)
+        if userType == .currentUser {
+            let transition = CATransition()
+            transition.duration = 0.3
+            transition.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeInEaseOut)
+            transition.type = CATransitionType.reveal
+            transition.subtype = CATransitionSubtype.fromBottom
+            navigationController?.view.layer.add(transition, forKey: nil)
+            _ = navigationController?.popViewController(animated: false)
+        } else {
+            self.dismiss(animated: true, completion: nil)
+        }
     }
     
     // MARK: - 登出

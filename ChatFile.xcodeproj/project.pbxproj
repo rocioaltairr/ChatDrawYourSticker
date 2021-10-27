@@ -24,24 +24,22 @@
 		6D9FCBF02726B39400C1CE16 /* LoadingUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9FCBEF2726B39400C1CE16 /* LoadingUtil.swift */; };
 		6DA3F4D926FF536D002E2D86 /* UserViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DA3F4D826FF536D002E2D86 /* UserViewModel.swift */; };
 		6DA3F4DB26FF57BE002E2D86 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6DA3F4DA26FF57BE002E2D86 /* GoogleService-Info.plist */; };
-		6DA4F961271C48A400D9C2F1 /* MessageCVCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DA4F960271C48A400D9C2F1 /* MessageCVCell.swift */; };
 		6DA4F968271C8B1500D9C2F1 /* ChatMessageKitVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DA4F966271C8B1500D9C2F1 /* ChatMessageKitVC.swift */; };
 		6DA4F969271C8B1500D9C2F1 /* ChatMessageKitVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6DA4F967271C8B1500D9C2F1 /* ChatMessageKitVC.xib */; };
 		6DAAD1E72727D8A40091E6B7 /* LoadingExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAAD1E62727D8A40091E6B7 /* LoadingExtension.swift */; };
 		6DAD793F27008A6500DDF307 /* CustomInputAccessoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAD793E27008A6500DDF307 /* CustomInputAccessoryView.swift */; };
-		6DAD794D2700D17500DDF307 /* ChatCVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAD794B2700D17500DDF307 /* ChatCVC.swift */; };
-		6DAD794E2700D17500DDF307 /* ChatCVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6DAD794C2700D17500DDF307 /* ChatCVC.xib */; };
+		6DAF40832728E0B2007E4D2B /* Canvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAF40822728E0B2007E4D2B /* Canvas.swift */; };
+		6DAF408A2728E167007E4D2B /* CanvasVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAF40882728E167007E4D2B /* CanvasVC.swift */; };
+		6DAF408B2728E167007E4D2B /* CanvasVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6DAF40892728E167007E4D2B /* CanvasVC.xib */; };
+		6DAF408F272901E1007E4D2B /* ShowMessageImageVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAF408D272901E1007E4D2B /* ShowMessageImageVC.swift */; };
+		6DAF4090272901E1007E4D2B /* ShowMessageImageVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6DAF408E272901E1007E4D2B /* ShowMessageImageVC.xib */; };
+		6DAF409327291FCD007E4D2B /* UIViewExt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DAF409227291FCD007E4D2B /* UIViewExt.swift */; };
 		6DD6E03B26C507D300EDD718 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DD6E03A26C507D300EDD718 /* AppDelegate.swift */; };
 		6DD6E03D26C507D300EDD718 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DD6E03C26C507D300EDD718 /* SceneDelegate.swift */; };
 		6DD6E03F26C507D300EDD718 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DD6E03E26C507D300EDD718 /* ViewController.swift */; };
 		6DD6E04226C507D300EDD718 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6DD6E04026C507D300EDD718 /* Main.storyboard */; };
 		6DD6E04426C507D600EDD718 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6DD6E04326C507D600EDD718 /* Assets.xcassets */; };
 		6DD6E04726C507D600EDD718 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6DD6E04526C507D600EDD718 /* LaunchScreen.storyboard */; };
-		6DD6E05626C508D400EDD718 /* SensorMainSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DD6E05026C508D400EDD718 /* SensorMainSection.swift */; };
-		6DD6E05726C508D400EDD718 /* SensorVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DD6E05126C508D400EDD718 /* SensorVC.swift */; };
-		6DD6E05826C508D400EDD718 /* SensorMainCVCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6DD6E05326C508D400EDD718 /* SensorMainCVCell.xib */; };
-		6DD6E05926C508D400EDD718 /* SensorMainCVCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DD6E05426C508D400EDD718 /* SensorMainCVCell.swift */; };
-		6DD6E05A26C508D400EDD718 /* SensorVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6DD6E05526C508D400EDD718 /* SensorVC.xib */; };
 		6DD6E05D26C5097B00EDD718 /* CompositionalLayoutUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DD6E05C26C5097B00EDD718 /* CompositionalLayoutUtil.swift */; };
 		6DD6E06026C50CB400EDD718 /* FirstVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DD6E05E26C50CB400EDD718 /* FirstVC.swift */; };
 		6DD6E06126C50CB400EDD718 /* FirstVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6DD6E05F26C50CB400EDD718 /* FirstVC.xib */; };
@@ -66,7 +64,6 @@
 		6DD6E09326C51D4C00EDD718 /* ConversationVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6DD6E09126C51D4C00EDD718 /* ConversationVC.xib */; };
 		6DD6E09726C51FE100EDD718 /* ConversationsTbvCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DD6E09526C51FE100EDD718 /* ConversationsTbvCell.swift */; };
 		6DD6E09826C51FE100EDD718 /* ConversationsTbvCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6DD6E09626C51FE100EDD718 /* ConversationsTbvCell.xib */; };
-		6DEEF72F2725865200825E95 /* ExampleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DEEF72E2725865200825E95 /* ExampleViewController.swift */; };
 		8563B6BC8E2B1BBFE1117EF5 /* Pods_ChatFile.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1B87437E217ABF06432C2096 /* Pods_ChatFile.framework */; };
 /* End PBXBuildFile section */
 
@@ -91,13 +88,16 @@
 		6D9FCBEF2726B39400C1CE16 /* LoadingUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingUtil.swift; sourceTree = "<group>"; };
 		6DA3F4D826FF536D002E2D86 /* UserViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserViewModel.swift; sourceTree = "<group>"; };
 		6DA3F4DA26FF57BE002E2D86 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		6DA4F960271C48A400D9C2F1 /* MessageCVCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageCVCell.swift; sourceTree = "<group>"; };
 		6DA4F966271C8B1500D9C2F1 /* ChatMessageKitVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessageKitVC.swift; sourceTree = "<group>"; };
 		6DA4F967271C8B1500D9C2F1 /* ChatMessageKitVC.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ChatMessageKitVC.xib; sourceTree = "<group>"; };
 		6DAAD1E62727D8A40091E6B7 /* LoadingExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingExtension.swift; sourceTree = "<group>"; };
 		6DAD793E27008A6500DDF307 /* CustomInputAccessoryView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomInputAccessoryView.swift; sourceTree = "<group>"; };
-		6DAD794B2700D17500DDF307 /* ChatCVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatCVC.swift; sourceTree = "<group>"; };
-		6DAD794C2700D17500DDF307 /* ChatCVC.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ChatCVC.xib; sourceTree = "<group>"; };
+		6DAF40822728E0B2007E4D2B /* Canvas.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Canvas.swift; sourceTree = "<group>"; };
+		6DAF40882728E167007E4D2B /* CanvasVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasVC.swift; sourceTree = "<group>"; };
+		6DAF40892728E167007E4D2B /* CanvasVC.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CanvasVC.xib; sourceTree = "<group>"; };
+		6DAF408D272901E1007E4D2B /* ShowMessageImageVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowMessageImageVC.swift; sourceTree = "<group>"; };
+		6DAF408E272901E1007E4D2B /* ShowMessageImageVC.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ShowMessageImageVC.xib; sourceTree = "<group>"; };
+		6DAF409227291FCD007E4D2B /* UIViewExt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewExt.swift; sourceTree = "<group>"; };
 		6DD6E03726C507D300EDD718 /* ChatFile.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ChatFile.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6DD6E03A26C507D300EDD718 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		6DD6E03C26C507D300EDD718 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -106,11 +106,6 @@
 		6DD6E04326C507D600EDD718 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6DD6E04626C507D600EDD718 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		6DD6E04826C507D600EDD718 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		6DD6E05026C508D400EDD718 /* SensorMainSection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SensorMainSection.swift; sourceTree = "<group>"; };
-		6DD6E05126C508D400EDD718 /* SensorVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SensorVC.swift; sourceTree = "<group>"; };
-		6DD6E05326C508D400EDD718 /* SensorMainCVCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SensorMainCVCell.xib; sourceTree = "<group>"; };
-		6DD6E05426C508D400EDD718 /* SensorMainCVCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SensorMainCVCell.swift; sourceTree = "<group>"; };
-		6DD6E05526C508D400EDD718 /* SensorVC.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SensorVC.xib; sourceTree = "<group>"; };
 		6DD6E05C26C5097B00EDD718 /* CompositionalLayoutUtil.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CompositionalLayoutUtil.swift; sourceTree = "<group>"; };
 		6DD6E05E26C50CB400EDD718 /* FirstVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstVC.swift; sourceTree = "<group>"; };
 		6DD6E05F26C50CB400EDD718 /* FirstVC.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = FirstVC.xib; sourceTree = "<group>"; };
@@ -135,7 +130,6 @@
 		6DD6E09126C51D4C00EDD718 /* ConversationVC.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ConversationVC.xib; sourceTree = "<group>"; };
 		6DD6E09526C51FE100EDD718 /* ConversationsTbvCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationsTbvCell.swift; sourceTree = "<group>"; };
 		6DD6E09626C51FE100EDD718 /* ConversationsTbvCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ConversationsTbvCell.xib; sourceTree = "<group>"; };
-		6DEEF72E2725865200825E95 /* ExampleViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExampleViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -161,6 +155,7 @@
 		6D36F6E2271E735F00544EB5 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				6DAF40822728E0B2007E4D2B /* Canvas.swift */,
 				6D36F6E3271E736F00544EB5 /* MessageModel.swift */,
 			);
 			path = Model;
@@ -170,6 +165,10 @@
 			isa = PBXGroup;
 			children = (
 				6D36F6E2271E735F00544EB5 /* Model */,
+				6DAD793B27008A1800DDF307 /* UIView */,
+				6DAF408C2728E16F007E4D2B /* 畫貼圖 */,
+				6DAF408D272901E1007E4D2B /* ShowMessageImageVC.swift */,
+				6DAF408E272901E1007E4D2B /* ShowMessageImageVC.xib */,
 				6DA4F966271C8B1500D9C2F1 /* ChatMessageKitVC.swift */,
 				6DA4F967271C8B1500D9C2F1 /* ChatMessageKitVC.xib */,
 			);
@@ -179,30 +178,11 @@
 		6DAD793B27008A1800DDF307 /* UIView */ = {
 			isa = PBXGroup;
 			children = (
+				6DAD793E27008A6500DDF307 /* CustomInputAccessoryView.swift */,
 				6D05D2252706133C00BE94E7 /* SectionTitleCvReusableView.swift */,
 				6D05D2262706133C00BE94E7 /* SectionTitleCvReusableView.xib */,
-				6DAD793E27008A6500DDF307 /* CustomInputAccessoryView.swift */,
 			);
 			path = UIView;
-			sourceTree = "<group>";
-		};
-		6DAD79482700CF8200DDF307 /* CollectionViewCell */ = {
-			isa = PBXGroup;
-			children = (
-				6DA4F960271C48A400D9C2F1 /* MessageCVCell.swift */,
-			);
-			path = CollectionViewCell;
-			sourceTree = "<group>";
-		};
-		6DAD794F2700D1AF00DDF307 /* 聊天室泡泡 */ = {
-			isa = PBXGroup;
-			children = (
-				6DAD794B2700D17500DDF307 /* ChatCVC.swift */,
-				6DAD794C2700D17500DDF307 /* ChatCVC.xib */,
-				6DAD793B27008A1800DDF307 /* UIView */,
-				6DAD79482700CF8200DDF307 /* CollectionViewCell */,
-			);
-			path = "聊天室泡泡";
 			sourceTree = "<group>";
 		};
 		6DAD79502700D20C00DDF307 /* 搜尋 */ = {
@@ -243,6 +223,23 @@
 			path = "我的";
 			sourceTree = "<group>";
 		};
+		6DAF408C2728E16F007E4D2B /* 畫貼圖 */ = {
+			isa = PBXGroup;
+			children = (
+				6DAF40882728E167007E4D2B /* CanvasVC.swift */,
+				6DAF40892728E167007E4D2B /* CanvasVC.xib */,
+			);
+			path = "畫貼圖";
+			sourceTree = "<group>";
+		};
+		6DAF409127291FB7007E4D2B /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				6DAF409227291FCD007E4D2B /* UIViewExt.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
 		6DD6E02E26C507D300EDD718 = {
 			isa = PBXGroup;
 			children = (
@@ -264,65 +261,34 @@
 		6DD6E03926C507D300EDD718 /* ChatFile */ = {
 			isa = PBXGroup;
 			children = (
-				6DD6E08626C519DC00EDD718 /* Model */,
 				6DD6E07026C5194E00EDD718 /* Utils */,
 				6DD6E06726C517EE00EDD718 /* API */,
-				6DD6E05B26C5097000EDD718 /* VC */,
+				6DD6E08626C519DC00EDD718 /* Model */,
 				6DD6E07B26C5197200EDD718 /* ViewModel */,
-				6DD6E04E26C508D400EDD718 /* 感測器 */,
+				6DD6E05B26C5097000EDD718 /* VC */,
 				6DD6E03A26C507D300EDD718 /* AppDelegate.swift */,
 				6DD6E03C26C507D300EDD718 /* SceneDelegate.swift */,
 				6DD6E03E26C507D300EDD718 /* ViewController.swift */,
 				6DD6E04026C507D300EDD718 /* Main.storyboard */,
-				6DD6E04326C507D600EDD718 /* Assets.xcassets */,
 				6DD6E04526C507D600EDD718 /* LaunchScreen.storyboard */,
+				6DD6E04326C507D600EDD718 /* Assets.xcassets */,
 				6DA3F4DA26FF57BE002E2D86 /* GoogleService-Info.plist */,
 				6DD6E04826C507D600EDD718 /* Info.plist */,
 			);
 			path = ChatFile;
 			sourceTree = "<group>";
 		};
-		6DD6E04E26C508D400EDD718 /* 感測器 */ = {
-			isa = PBXGroup;
-			children = (
-				6DD6E04F26C508D400EDD718 /* Section */,
-				6DD6E05126C508D400EDD718 /* SensorVC.swift */,
-				6DD6E05526C508D400EDD718 /* SensorVC.xib */,
-				6DD6E05226C508D400EDD718 /* Cell */,
-			);
-			path = "感測器";
-			sourceTree = "<group>";
-		};
-		6DD6E04F26C508D400EDD718 /* Section */ = {
-			isa = PBXGroup;
-			children = (
-				6DD6E05026C508D400EDD718 /* SensorMainSection.swift */,
-			);
-			path = Section;
-			sourceTree = "<group>";
-		};
-		6DD6E05226C508D400EDD718 /* Cell */ = {
-			isa = PBXGroup;
-			children = (
-				6DD6E05326C508D400EDD718 /* SensorMainCVCell.xib */,
-				6DD6E05426C508D400EDD718 /* SensorMainCVCell.swift */,
-			);
-			path = Cell;
-			sourceTree = "<group>";
-		};
 		6DD6E05B26C5097000EDD718 /* VC */ = {
 			isa = PBXGroup;
 			children = (
 				6DA4F962271C8ABB00D9C2F1 /* 聊天MessageKit */,
-				6DD6E05C26C5097B00EDD718 /* CompositionalLayoutUtil.swift */,
-				6DD6E05E26C50CB400EDD718 /* FirstVC.swift */,
-				6DD6E05F26C50CB400EDD718 /* FirstVC.xib */,
 				6DD6E06226C50D3F00EDD718 /* 登入 */,
 				6DAD79522700D24D00DDF307 /* 首頁 */,
 				6DAD79502700D20C00DDF307 /* 搜尋 */,
 				6DAD79532700D26A00DDF307 /* 我的 */,
-				6DD6E08B26C51B7600EDD718 /* 聊天 */,
-				6DEEF72E2725865200825E95 /* ExampleViewController.swift */,
+				6DD6E05C26C5097B00EDD718 /* CompositionalLayoutUtil.swift */,
+				6DD6E05E26C50CB400EDD718 /* FirstVC.swift */,
+				6DD6E05F26C50CB400EDD718 /* FirstVC.xib */,
 			);
 			path = VC;
 			sourceTree = "<group>";
@@ -352,6 +318,7 @@
 		6DD6E07026C5194E00EDD718 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				6DAF409127291FB7007E4D2B /* Extensions */,
 				6DD6E07126C5194E00EDD718 /* Constants.swift */,
 				6DD6E07226C5194E00EDD718 /* CoreDataHelper.swift */,
 				6DD6E07326C5194E00EDD718 /* Extensions.swift */,
@@ -385,14 +352,6 @@
 				6DD6E08826C519DC00EDD718 /* User.swift */,
 			);
 			path = Model;
-			sourceTree = "<group>";
-		};
-		6DD6E08B26C51B7600EDD718 /* 聊天 */ = {
-			isa = PBXGroup;
-			children = (
-				6DAD794F2700D1AF00DDF307 /* 聊天室泡泡 */,
-			);
-			path = "聊天";
 			sourceTree = "<group>";
 		};
 		6DD6E09426C51FC100EDD718 /* Cell */ = {
@@ -474,9 +433,10 @@
 			files = (
 				6D3EF23B27003D9E00EA79AE /* MyProfileVC.xib in Resources */,
 				6DD6E06626C50D5500EDD718 /* LoginVC.xib in Resources */,
+				6DAF4090272901E1007E4D2B /* ShowMessageImageVC.xib in Resources */,
 				6DD6E09826C51FE100EDD718 /* ConversationsTbvCell.xib in Resources */,
 				6DD6E04726C507D600EDD718 /* LaunchScreen.storyboard in Resources */,
-				6DD6E05826C508D400EDD718 /* SensorMainCVCell.xib in Resources */,
+				6DAF408B2728E167007E4D2B /* CanvasVC.xib in Resources */,
 				6DA3F4DB26FF57BE002E2D86 /* GoogleService-Info.plist in Resources */,
 				6D3EF23126FF663100EA79AE /* SearchTbvCell.xib in Resources */,
 				6DD6E04426C507D600EDD718 /* Assets.xcassets in Resources */,
@@ -484,11 +444,9 @@
 				6DA4F969271C8B1500D9C2F1 /* ChatMessageKitVC.xib in Resources */,
 				6DD6E09326C51D4C00EDD718 /* ConversationVC.xib in Resources */,
 				6DD6E04226C507D300EDD718 /* Main.storyboard in Resources */,
-				6DD6E05A26C508D400EDD718 /* SensorVC.xib in Resources */,
 				6DD6E06126C50CB400EDD718 /* FirstVC.xib in Resources */,
 				6D05D2282706133C00BE94E7 /* SectionTitleCvReusableView.xib in Resources */,
 				6D3EF22D26FF629200EA79AE /* SearchVC.xib in Resources */,
-				6DAD794E2700D17500DDF307 /* ChatCVC.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -545,8 +503,9 @@
 				6DD6E03F26C507D300EDD718 /* ViewController.swift in Sources */,
 				6DD6E06026C50CB400EDD718 /* FirstVC.swift in Sources */,
 				6DD6E08A26C519DC00EDD718 /* User.swift in Sources */,
+				6DAF408A2728E167007E4D2B /* CanvasVC.swift in Sources */,
+				6DAF408F272901E1007E4D2B /* ShowMessageImageVC.swift in Sources */,
 				6D9FCBF02726B39400C1CE16 /* LoadingUtil.swift in Sources */,
-				6DA4F961271C48A400D9C2F1 /* MessageCVCell.swift in Sources */,
 				6DA4F968271C8B1500D9C2F1 /* ChatMessageKitVC.swift in Sources */,
 				6DD6E03B26C507D300EDD718 /* AppDelegate.swift in Sources */,
 				6DD6E09726C51FE100EDD718 /* ConversationsTbvCell.swift in Sources */,
@@ -555,20 +514,18 @@
 				6D7269A127204239001CB4D7 /* ImageCache.swift in Sources */,
 				6DD6E08226C5197200EDD718 /* RegistrationViewModel.swift in Sources */,
 				6DD6E06F26C5181200EDD718 /* UserManager.swift in Sources */,
-				6DEEF72F2725865200825E95 /* ExampleViewController.swift in Sources */,
-				6DD6E05626C508D400EDD718 /* SensorMainSection.swift in Sources */,
-				6DD6E05926C508D400EDD718 /* SensorMainCVCell.swift in Sources */,
+				6DAF409327291FCD007E4D2B /* UIViewExt.swift in Sources */,
 				6DA3F4D926FF536D002E2D86 /* UserViewModel.swift in Sources */,
 				6DD6E06D26C5181200EDD718 /* AuthService.swift in Sources */,
 				6D3EF23427002B6C00EA79AE /* RegisterVC.swift in Sources */,
 				6D3EF22C26FF629200EA79AE /* SearchVC.swift in Sources */,
 				6D3EF23A27003D9E00EA79AE /* MyProfileVC.swift in Sources */,
 				6D36F6E4271E736F00544EB5 /* MessageModel.swift in Sources */,
+				6DAF40832728E0B2007E4D2B /* Canvas.swift in Sources */,
 				6D05D2272706133C00BE94E7 /* SectionTitleCvReusableView.swift in Sources */,
 				6D3EF23026FF663100EA79AE /* SearchTbvCell.swift in Sources */,
 				6DD6E06526C50D5500EDD718 /* LoginVC.swift in Sources */,
 				6DAD793F27008A6500DDF307 /* CustomInputAccessoryView.swift in Sources */,
-				6DD6E05726C508D400EDD718 /* SensorVC.swift in Sources */,
 				6DD6E09226C51D4C00EDD718 /* ConversationVC.swift in Sources */,
 				6D919BC32719ACA800B30AFC /* StyleUtil.swift in Sources */,
 				6DD6E06E26C5181200EDD718 /* DatabaseManager.swift in Sources */,
@@ -579,7 +536,6 @@
 				6DD6E07626C5194E00EDD718 /* Constants.swift in Sources */,
 				6DD6E08426C5197200EDD718 /* ProfileViewModal.swift in Sources */,
 				6DD6E03D26C507D300EDD718 /* SceneDelegate.swift in Sources */,
-				6DAD794D2700D17500DDF307 /* ChatCVC.swift in Sources */,
 				6DD6E08126C5197200EDD718 /* LoginViewModel.swift in Sources */,
 				6DD6E08926C519DC00EDD718 /* Message.swift in Sources */,
 				6DD6E08526C5197200EDD718 /* ConversationViewModel.swift in Sources */,
