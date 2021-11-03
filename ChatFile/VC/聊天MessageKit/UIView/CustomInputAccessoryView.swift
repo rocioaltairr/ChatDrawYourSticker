@@ -2,7 +2,7 @@
 //  CustomInputAccessoryView.swift
 //  ChatGame
 //
-//  Created by 2008007NB01 on 2021/2/5.
+//  Created by 白白 on 2021/2/5.
 //
 
 import UIKit
@@ -164,17 +164,20 @@ class CustomInputAccessoryView: UIView {
     
     // MARK: - 新增媒體
     @objc func handleAdd(_ sender:UIButton) {
+        print("新增媒體")
         sender.isSelected = !sender.isSelected
         delegate?.presentAdd(isSelected:sender.isSelected)
     }
     
     // MARK: - 新增相簿
     @objc func handleAddCamera() {
+        print(" 新增相簿")
         delegate?.presentCamera()
     }
     
     // MARK: - 新增拍照
     @objc func handleAddAlbum() {
+        print(" 新增拍照")
         delegate?.presentAlbum()
     }
     
@@ -187,7 +190,7 @@ class CustomInputAccessoryView: UIView {
     // MARK: - User寫文字時，TextFiend內容改變
     @objc func handleTextInputChange() {
         delegate?.inputChanged()
-        
+
         if self.messageInputTextView.text.isEmpty {
             btnSend.setImage(UIImage(named: "icons8-send-64"), for: .normal)
             btnSend.tintColor = #colorLiteral(red: 0.768627451, green: 0.768627451, blue: 0.768627451, alpha: 1)

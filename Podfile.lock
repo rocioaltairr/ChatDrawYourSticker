@@ -499,7 +499,6 @@ PODS:
     - InputBarAccessoryView/Core (= 5.3.1)
   - InputBarAccessoryView/Core (5.3.1)
   - ISEmojiView (0.2.6)
-  - JGProgressHUD (2.2)
   - leveldb-library (1.22.1)
   - MessageKit (3.6.1):
     - InputBarAccessoryView (~> 5.3.1)
@@ -532,7 +531,6 @@ DEPENDENCIES:
   - Firebase/Storage
   - GoogleSignIn
   - ISEmojiView
-  - JGProgressHUD
   - MessageKit
   - NVActivityIndicatorView
   - SDWebImage
@@ -563,7 +561,6 @@ SPEC REPOS:
     - GTMSessionFetcher
     - InputBarAccessoryView
     - ISEmojiView
-    - JGProgressHUD
     - leveldb-library
     - MessageKit
     - nanopb
@@ -598,7 +595,6 @@ SPEC CHECKSUMS:
   GTMSessionFetcher: 36689134877faeb055b27dfa4ccc9ceaa42e029e
   InputBarAccessoryView: 1f75d8c9f75e5e57f3ffac36ed58635a8005e0bc
   ISEmojiView: f7cd94a6c93307f429ec5da001293d0b02247f03
-  JGProgressHUD: d83d7a981b85d11205e19ff8ad5bb9c40571c847
   leveldb-library: 50c7b45cbd7bf543c81a468fe557a16ae3db8729
   MessageKit: d153fbbbcb12f3f4045a1ba8874298924dacfb62
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
@@ -609,6 +605,6 @@ SPEC CHECKSUMS:
   SteviaLayout: c2ecdcff57d44e38fd2f65e54ad52aeae28ca0c4
   YPImagePicker: 1463a19a36244e209dcb03c30e63559c5afa9602
 
-PODFILE CHECKSUM: 95f7e14fe9c0afbc1c7d277ca810bf24e4d2a5f1
+PODFILE CHECKSUM: 35c544a7c3c7a35d529a8c3510b0282afd6ecd17
 
 COCOAPODS: 1.10.1

@@ -2,7 +2,7 @@
 //  MessageModel.swift
 //  ChatFile
 //
-//  Created by 2008007NB01 on 2021/10/19.
+//  Created by 白白 on 2021/10/19.
 //
 
 import Foundation
@@ -13,16 +13,28 @@ import FirebaseStorage
 import FirebaseDatabase
 import FirebaseFirestore
 
-struct SenderNew:SenderType {
+struct SenderUser:SenderType {
     var senderId:String
     var displayName:String
     
 }
-struct MessageNew:MessageType {
+struct Message:MessageType {
     var sender: SenderType
     var messageId: String
     var sentDate: Date
     var kind: MessageKind
+    lazy var day:String = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        let strDate = formatter.string(from: sentDate)
+        return strDate
+    }()
+    func getDay() -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        let strDate = formatter.string(from: sentDate)
+        return strDate
+    }
     
 }
      

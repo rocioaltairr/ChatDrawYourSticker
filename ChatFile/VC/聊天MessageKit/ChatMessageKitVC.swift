@@ -2,7 +2,7 @@
 //  ChatMessageKitVC.swift
 //  ChatFile
 //
-//  Created by 2008007NB01 on 2021/10/18.
+//  Created by 白白 on 2021/10/18.
 //
 
 import UIKit
@@ -13,24 +13,13 @@ import Firebase
 import FirebaseCore
 import FirebaseFirestore
 import ALCameraViewController
-
 import Photos
 import YPImagePicker
+
 class ChatMessageKitVC:MessagesViewController, MessagesLayoutDelegate {
-    
-    var customView = UIView(frame: CGRect(x: 0, y: UIScreen.HEIGHT-150, width: UIScreen.WIDTH, height: 150))
-    
-    lazy var selectedImageV : UIImageView = {
-        let imageView = UIImageView(frame: CGRect(x: 0,
-                                                  y: 0,
-                                                  width: UIScreen.main.bounds.width,
-                                                  height: UIScreen.main.bounds.height * 0.45))
-        imageView.contentMode = .scaleAspectFit
-        return imageView
-    }()
-    
-    private lazy var customInputView: CustomInputAccessoryView = { // 輸入框
-        let iv = CustomInputAccessoryView(frame: CGRect(x: 0, y: 0, width: view.frame.width, height:55))
+    //MARK: - 自己做的輸入框
+    private lazy var customInputView: CustomInputAccessoryView = {
+        let iv = CustomInputAccessoryView(frame: CGRect(x: 0, y: 0, width: view.frame.width, height:59.5))
         iv.backgroundColor = .white
         iv.delegate = self
         
@@ -44,181 +33,150 @@ class ChatMessageKitVC:MessagesViewController, MessagesLayoutDelegate {
     let imagePickerViewController = PhotoLibraryViewController()
     var selectedItems = [YPMediaItem]()
     var otherUser: User? // 對方
-    var currentUser : User?
-    var profileImage: UIImage?
+    var keyboardIsOpen:Bool = false
     
-    var messages = [MessageNew]()
-    var messagesFirebase: [MessageFirebase]?
-    
-    var firstDocumentSnapshot: DocumentSnapshot!
-    var fetchingMore = false
-    
-//    func cellBottomLabelAlignment(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> LabelAlignment {
-//        if message.sender.senderId == currentUser?.uid {
-//            return (UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 0))
-//        } else {
-//            return .right//UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 10)
-//        }
-//    }
+    lazy var viewModel:MessagesChatViewModel = {
+        return MessagesChatViewModel()
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.setUpHeader()
+        self.setupLayout()
+        LodingActivityIndicatorUtil.shared.showLoader(view: self.view)
         
-        setUpHeader()
-        // 初始Layout
+        self.viewModel.otherUser = self.otherUser
+        
+        self.viewModel.fetchMessage(chatToUser: otherUser)
+        self.viewModel.reloadMessageCollectionViewClosureToTop = { [weak self] () in
+            DispatchQueue.main.async {
+                self?.messagesCollectionView.reloadData()
+                self?.messagesCollectionView.scrollToItem(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+                UpLodingActivityIndicatorUtil.shared.hideLoader()
+            }
+        }
+        
+        self.viewModel.reloadStillNoChatClosure = { [weak self] () in
+            DispatchQueue.main.async {
+                LodingActivityIndicatorUtil.shared.hideLoader()
+            }
+        }
+        self.viewModel.reloadMessageCollectionViewClosure = { [weak self] () in
+            DispatchQueue.main.async {
+                self?.messagesCollectionView.reloadData()
+                self?.messagesCollectionView.scrollToLastItem()
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
+                LodingActivityIndicatorUtil.shared.hideLoader()
+            }
+        }
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillShow),
+            name: UIResponder.keyboardWillShowNotification,
+            object: nil
+        )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillHide),
+            name: UIResponder.keyboardWillHideNotification,
+            object: nil
+        )
+    }
+    
+    @objc func keyboardWillShow(_ notification: Notification) {
+        if let keyboardFrame: NSValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
+            let keyboardRectangle = keyboardFrame.cgRectValue
+            let keyboardHeight = keyboardRectangle.height
+            print("keyboard打開")
+            let differenceOfBottomInset = keyboardHeight - 50
+            if keyboardHeight > 100 {
+                print("keyboard 出來")
+                if keyboardIsOpen == false {
+                    let contentOffset = CGPoint(x: messagesCollectionView.contentOffset.x, y: messagesCollectionView.contentOffset.y + differenceOfBottomInset)
+                    if contentOffset.y <= messagesCollectionView.contentSize.height {
+                        print("正常:\(contentOffset.y) :::: \(messagesCollectionView.contentOffset.y)")
+                        messagesCollectionView.setContentOffset(contentOffset, animated: false)
+                        print("正常 更改後:\(contentOffset.y) :::: \(messagesCollectionView.contentOffset.y)")
+                    } else {
+                        print("不正常:\(contentOffset.y) :::: \(messagesCollectionView.contentOffset.y)")
+                        
+                    }
+                    keyboardIsOpen = true
+                }
+            } else {
+            }
+        }
+    }
+    
+    @objc func keyboardWillHide(_ notification: Notification) {
+        keyboardIsOpen = false
+        print("keyboard收起")
+    }
+    
+    func setupLayout() {
         messagesCollectionView.messagesDataSource = self
         messagesCollectionView.messagesLayoutDelegate = self
         messagesCollectionView.messagesDisplayDelegate = self
         messagesCollectionView.messageCellDelegate = self
-        messagesCollectionView.contentInset.top = 40
-        
-        
-        scrollsToLastItemOnKeyboardBeginsEditing = true // default false
-        maintainPositionOnKeyboardFrameChanged = true // default false
-        
-        LodingActivityIndicatorUtil.shared.showLoader(view: self.view)
-        
-        loadMessages()
+        messagesCollectionView.contentInset.top = 70
+       // scrollsToLastItemOnKeyboardBeginsEditing = true // default false
+       // maintainPositionOnKeyboardFrameChanged = true // default false
         if let layout = messagesCollectionView.collectionViewLayout as? MessagesCollectionViewFlowLayout {
             let bottomLabelAlignment = LabelAlignment(textAlignment: .right, textInsets: .zero)
-              layout.setMessageOutgoingMessageBottomLabelAlignment(bottomLabelAlignment)
+            layout.setMessageOutgoingMessageBottomLabelAlignment(bottomLabelAlignment)
             layout.textMessageSizeCalculator.outgoingAvatarSize = .zero
             layout.attributedTextMessageSizeCalculator.outgoingAvatarSize = .zero
             layout.emojiMessageSizeCalculator.outgoingAvatarSize = .zero
             layout.photoMessageSizeCalculator.outgoingAvatarSize = .zero
             layout.videoMessageSizeCalculator.outgoingAvatarSize = .zero
             layout.locationMessageSizeCalculator.outgoingAvatarSize = .zero
+           // layout.sectionHeadersPinToVisibleBounds = true
         }
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        customInputView.bottomConstraint?.constant = 55
-        //customView.removeFromSuperview()
+        
     }
     
     // MARK: - 滑動
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        
         if scrollView == messagesCollectionView {
             if messagesCollectionView.contentOffset.y < 50 { //上滑動
                 UpLodingActivityIndicatorUtil.shared.showLoader(view: self.view)
-                loadMessages()
+                
+                self.viewModel.fetchMessage(chatToUser: otherUser)
                 let oldContentSizeHeight = messagesCollectionView.contentSize.height
                 messagesCollectionView.reloadData()
                 let newContentSizeHeight = messagesCollectionView.contentSize.height
                 messagesCollectionView.contentOffset = CGPoint(x:messagesCollectionView.contentOffset.x,y:newContentSizeHeight - oldContentSizeHeight)
                 
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     UpLodingActivityIndicatorUtil.shared.hideLoader()
-                })
-            }
-        }
-    }
-    
-    func loadMessages() {
-        fetchingMore = true
-        
-        var loadMessagesFirst :Bool = false
-        var query: Query!
-        
-        if messages.isEmpty {
-            query = COLLECTION_MESSAGES.document(currentUser!.uid).collection(otherUser!.uid).order(by: "timestamp").limit(toLast: 15)
-            loadMessagesFirst = true
-            print("載入前10 messages")
-        } else {
-            query = COLLECTION_MESSAGES.document(currentUser!.uid).collection(otherUser!.uid).order(by: "timestamp").end(beforeDocument: firstDocumentSnapshot).limit(toLast: 8)
-            loadMessagesFirst = false
-            print("載入下批批 5 messages")
-        }
-        
-        query.addSnapshotListener { (snapshot, err) in
-            if let err = err {
-                print("\(err.localizedDescription)")
-            } else if snapshot!.isEmpty {
-                LodingActivityIndicatorUtil.shared.hideLoader()
-                self.fetchingMore = false
-                return
-            } else {
-                self.firstDocumentSnapshot = snapshot!.documents.first
-                
-                let newMessages = snapshot!.documents.compactMap({MessageFirebase(dictionary: $0.data())})
-                if self.messagesFirebase != nil {
-                    self.messagesFirebase =  newMessages + self.messagesFirebase!
-                } else {
-                    self.messagesFirebase = newMessages
                 }
-                
-                let myGroup = DispatchGroup()
-                for newmessage in newMessages {
-                    //self.messages.removeAll()
-                    myGroup.enter()
-                    if newmessage.mssageImageUrl == "" || newmessage.mssageImageUrl == nil { // 文字
-                        self.messages.append(MessageNew(sender: SenderNew(senderId:(newmessage.fromID!),displayName:self.otherUser?.username ?? ""),
-                                                        messageId: (newmessage.messageId)!,
-                                                        sentDate: (newmessage.timestamp.dateValue()) as! Date,
-                                                        kind: MessageKind.text((newmessage.text)!)))
-                        myGroup.leave()
-                    } else { // 照片
-                        let ref = Storage.storage().reference(withPath: "message_images/\(newmessage.mssageImageUrl ?? "")")
-                        ref.getData(maxSize: 1 * 1024 * 1024) { data, error in
-                            if error != nil {
-                                print("DEBUG: 取得 Storage 圖片失敗 \(error?.localizedDescription ?? "")")
-                            } else {
-                                if let imageData = data,let image = UIImage(data: imageData){
-                                    let photoHeight = image.size.height
-                                    let photoWidth = image.size.width
-                                    self.messages.append(MessageNew(sender: SenderNew(senderId:(newmessage.fromID ?? ""),
-                                                                                      displayName:self.otherUser?.username ?? ""),
-                                                                    messageId: newmessage.messageId ?? "",
-                                                                    sentDate: newmessage.timestamp.dateValue(),
-                                                                    kind:MessageKind.photo(MediaNew(url:nil,image:image,placeholderImage:image,size:CGSize(width: 250, height: 250 * photoHeight / photoWidth)))))
-                                }
-                            }
-                            myGroup.leave()
-                        }
-                    }
-                }
-                myGroup.notify(queue: .main) {
-                    //  print(".\messages載入完成")
-                    if loadMessagesFirst == true {
-                        self.messages =  self.messages.sorted(by:{ $0.sentDate < $1.sentDate})
-                        self.messages = self.messages.unique{$0.messageId}
-                        self.fetchingMore = false
-                        DispatchQueue.main.async {
-                            
-                            self.messagesCollectionView.reloadData()
-                            self.messagesCollectionView.scrollToLastItem() // 第一次進去滑到最下方
-                            LodingActivityIndicatorUtil.shared.hideLoader()
-                        }
-                    } else {
-                        self.messages =  self.messages.sorted(by:{ $0.sentDate < $1.sentDate})
-                        self.messages = self.messages.unique{$0.messageId}
-                        DispatchQueue.main.async {
-                            self.messagesCollectionView.reloadData()
-                            self.fetchingMore = false
-                            LodingActivityIndicatorUtil.shared.hideLoader()
-                            
-                        }
-                    }
-                }
-                /*
-                 DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
-                 self.messagesCollectionView.reloadData()
-                 self.fetchingMore = false
-                 })*/
             }
         }
     }
     
     func currentSender() -> SenderType {
-        return SenderNew(senderId: currentUser?.uid ?? "", displayName: currentUser?.username ?? "")
+        if let currentUser = UserDefaults.standard.data(forKey: "currentUser") {
+            do {
+                let decoder = JSONDecoder()
+                let data = try decoder.decode(User.self, from: currentUser)
+                return SenderUser(senderId: data.uid, displayName: data.username)
+            } catch {
+                print("無法Decode存到Userdefault")
+            }
+        }
+        return SenderUser(senderId: "", displayName: "")
     }
     
     func messageForItem(at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> MessageType {
-        return messages[indexPath.row]
+        return viewModel.getCellViewModel(at: indexPath)
     }
     
     func numberOfSections(in messagesCollectionView: MessagesCollectionView) -> Int {
-        return 1
+        return viewModel.numberOfSections
     }
     
     func cellBottomLabelHeight(for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> CGFloat {
@@ -226,7 +184,7 @@ class ChatMessageKitVC:MessagesViewController, MessagesLayoutDelegate {
     }
     
     func numberOfItems(inSection section: Int, in messagesCollectionView: MessagesCollectionView) -> Int {
-        messages.count
+        return viewModel.getRowNum(section: section)
     }
     
     func cellBottomLabelAttributedText(for message: MessageType, at indexPath: IndexPath) -> NSAttributedString? {
@@ -238,18 +196,15 @@ class ChatMessageKitVC:MessagesViewController, MessagesLayoutDelegate {
     }
     
     func headerViewSize(for section: Int, in messagesCollectionView: MessagesCollectionView) -> CGSize {
-        return CGSize(width: view.frame.width, height: 75)
+        return CGSize(width: view.frame.width, height: 50)
     }
     
     @objc func action_back(_ sender: AnyObject) {
         self.navigationController?.popViewController(animated: true)
     }
-    
-    @objc func dismissKeyBoard() {
-        customInputView.bottomConstraint?.constant = 55
-        customInputView.messageInputTextView.resignFirstResponder()
-        // customView.removeFromSuperview()
-    }
+    var keyboardShowHeight:Int?
+    var keyboardHideHeight:Int?
+
 }
 
 extension ChatMessageKitVC: MessagesDisplayDelegate {
@@ -259,18 +214,31 @@ extension ChatMessageKitVC: MessagesDisplayDelegate {
         return isFromCurrentSender(message: message) ? .systemBlue : #colorLiteral(red: 0.9274844527, green: 0.9256587625, blue: 0.9554644227, alpha: 1)
     }
     
-    /*
-     func shouldDisplayHeader(
-     for message: MessageType,
-     at indexPath: IndexPath,
-     in messagesCollectionView: MessagesCollectionView
-     ) -> Bool {
-     return false
-     }*/
+    func shouldDisplayHeader(for message: MessageType, at indexPath: IndexPath,in messagesCollectionView: MessagesCollectionView) -> Bool {
+        return true
+    }
+    
+    func messageHeaderView(for indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) -> MessageReusableView {
+        let header = messagesCollectionView.dequeueReusableHeaderView(MessageReusableView.self, for: indexPath)
+        header.backgroundColor = .white
+        let vw = UIView()
+        vw.frame = CGRect(x: 0, y: 0, width: UIScreen.WIDTH, height: 50)
+        vw.backgroundColor = .white
+        let lbDate = UILabel()
+        lbDate.frame = CGRect(x: 0, y: 0, width: UIScreen.WIDTH, height: 50)
+        lbDate.textAlignment = .center
+        lbDate.font = UIFont(name: "HelveticaNeue-UltraLight", size: 13)
+        lbDate.textColor = .black
+        lbDate.text = viewModel.getSectionDay(section: indexPath.section)
+        vw.addSubview(lbDate)
+        header.addSubview(vw)
+        return header
+    }
     
     // MARK: - 頭貼照
     func configureAvatarView(_ avatarView: AvatarView, for message: MessageType, at indexPath: IndexPath, in messagesCollectionView: MessagesCollectionView) {
-        if message.sender.senderId == currentUser?.uid {
+        guard let currentUserUid = Auth.auth().currentUser?.uid else {return}
+        if message.sender.senderId == currentUserUid {
             avatarView.image = UIImage(data: UserDefaultUtil.loadData(key: "currentUserImage"))
         } else {
             avatarView.image = UIImage(data: UserDefaultUtil.loadData(key: "otherUserImage\(otherUser!.uid)"))
@@ -288,7 +256,6 @@ extension ChatMessageKitVC: MessagesDisplayDelegate {
     func showCameraPicker() {
         var config = YPImagePickerConfiguration()
         config.library.mediaType = .photo
-        
         config.library.itemOverlayType = .grid
         config.shouldSaveNewPicturesToAlbum = false
         config.video.compression = AVAssetExportPresetPassthrough
@@ -301,7 +268,6 @@ extension ChatMessageKitVC: MessagesDisplayDelegate {
         config.library.maxNumberOfItems = 5
         config.gallery.hidesRemoveButton = false
         config.library.preselectedItems = self.selectedItems
-        
         let picker = YPImagePicker(configuration: config)
         picker.imagePickerDelegate = self
         picker.navigationBar.tintColor = .white
@@ -312,29 +278,43 @@ extension ChatMessageKitVC: MessagesDisplayDelegate {
                 picker?.dismiss(animated: true, completion: nil)
                 return
             }
-            _ = items.map { print("🧀 \($0)") }
-            
+           // _ = items.map { print("🧀 \($0)") }
+            var uploadMessgeTotalySucuess = false
+            var profileImage: UIImage?
             self.selectedItems = items
             if let firstItem = items.first {
                 switch firstItem {
                 case .photo(let photo):
-                    self.selectedImageV.image = photo.image
+                    LodingActivityIndicatorUtil.shared.showLoader(view: self.view)
+                    // self.selectedImageV.image = photo.image
                     DispatchQueue.global(qos: .userInitiated).async { // 好像沒用
-                        self.profileImage = photo.image
+                        profileImage = photo.image
                         let mssageImageUrl = "messageImage\(NSUUID().uuidString)"
-                        let photoHeight = self.profileImage?.size.height
-                        let photoWidth = self.profileImage?.size.width
-                        self.messages.append(MessageNew(sender: SenderNew(senderId: self.currentUser!.uid, displayName: self.currentUser!.username), messageId: "", sentDate: Date(), kind: MessageKind.photo(MediaNew(url:nil,image:photo.image,placeholderImage:photo.image,size:CGSize(width: 250, height: 250 * photoHeight! / photoWidth! )))))
-                        // 上傳message到
-                        UserManager.uploadMessage("照片", to:self.otherUser!, fileName: mssageImageUrl) { error in
-                            print("DEBUG:上傳照片失敗 \(error?.localizedDescription ?? "")")
-                        }
                         // 上傳照片到Storage
-                        UserManager.uploadMessagePhoto(with: (self.self.profileImage?.jpegData(compressionQuality: 0.1))!, fileName: mssageImageUrl, completion: nil)
                         
-                        DispatchQueue.main.async {
-                            LodingActivityIndicatorUtil.shared.hideLoader()
-                            self.messagesCollectionView.scrollToLastItem() // 第一次進去滑到最下方
+                        MessageManager.shared.uploadMessagePhoto(with: (profileImage?.jpegData(compressionQuality: 0.75))!, fileName: mssageImageUrl, completion: { error in
+                            if error == nil {
+                                print("DEBUG:上傳Message照片成功")
+                                MessageManager.shared.uploadMessage("照片", to:self.otherUser!, fileName: mssageImageUrl) { error in
+                                    if error != nil {
+                                        print("DEBUG:上傳訊息失敗 \(error?.localizedDescription ?? "")")
+                                        MessageManager.shared.uploadMessage("照片", to:self.otherUser!, fileName: mssageImageUrl,completion: nil) // 沒成功再跑一次
+                                    } else {
+                                        print("DEBUG:上傳訊息成功")
+                                        uploadMessgeTotalySucuess = true
+                                    }
+                                    
+                                }
+                            } else {
+                                print("DEBUG:上傳Message照片失敗 \(error?.localizedDescription ?? "")")
+                                MessageManager.shared.uploadMessagePhoto(with: (profileImage?.jpegData(compressionQuality: 0.75))!, fileName: mssageImageUrl, completion:nil) // 沒成功再跑一次
+                            }
+                            
+                        })
+                        
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                           print("DEBUG:上傳一秒後")
+                        
                         }
                     }
                     picker?.dismiss(animated: true, completion: nil)
@@ -362,9 +342,7 @@ extension ChatMessageKitVC: MessagesDisplayDelegate {
         config.library.maxNumberOfItems = 5
         config.gallery.hidesRemoveButton = false
         config.library.preselectedItems = self.selectedItems
-        
         let picker = YPImagePicker(configuration: config)
-        
         picker.imagePickerDelegate = self
         picker.navigationBar.tintColor = .white
         picker.didFinishPicking { [weak picker] items, cancelled in
@@ -374,27 +352,33 @@ extension ChatMessageKitVC: MessagesDisplayDelegate {
                 picker?.dismiss(animated: true, completion: nil)
                 return
             }
-            _ = items.map { print(" \($0)") }
+            //_ = items.map { print(" \($0)") }
             self.selectedItems = items
-            
+            LodingActivityIndicatorUtil.shared.showLoader(view: self.view)
+            var uploadMessgeTotalySucuess = false
             for item in items {
                 switch item {
                 case .photo(let p):
-                    print("🧀\(p.image.description)")
-                    self.messages.append(MessageNew(sender: SenderNew(senderId: self.currentUser!.uid, displayName: self.currentUser!.username), messageId: "", sentDate: Date(), kind: MessageKind.photo(MediaNew(url:nil,image:p.image,placeholderImage:p.image,size:CGSize(width: 250, height: 150 )))))
                     let mssageImageUrl = "messageImage\(NSUUID().uuidString)"
-                    UserManager.uploadMessage("照片", to:self.otherUser!, fileName: mssageImageUrl) { error in
-                        print("DEBUG:上傳照片失敗 \(error?.localizedDescription ?? "")")
-                    }
+                    LodingActivityIndicatorUtil.shared.showLoader(view: self.view)
                     // 上傳照片到Storage
-                    UserManager.uploadMessagePhoto(with: (p.image.jpegData(compressionQuality: 0.1))!, fileName: mssageImageUrl, completion: nil)
-                    
-                    DispatchQueue.main.async {
-                        self.messages = self.messages.unique{$0.messageId }
-                        self.messagesCollectionView.reloadData()
-                        self.messagesCollectionView.scrollToLastItem() // 第一次進去滑到最下方
-                    }
-                    
+                    MessageManager.shared.uploadMessagePhoto(with: (p.image.jpegData(compressionQuality: 0.07))!, fileName: mssageImageUrl, completion: { error in
+                        if error != nil {
+                            print("DEBUG:上傳Message照片失敗 \(error?.localizedDescription ?? "")")
+                            MessageManager.shared.uploadMessagePhoto(with: (p.image.jpegData(compressionQuality: 0.07))!, fileName: mssageImageUrl, completion: nil)
+                        } else {
+                            print("DEBUG:上傳Message照片成功")
+                            MessageManager.shared.uploadMessage("照片", to:self.otherUser!, fileName: mssageImageUrl) { error in
+                                if error != nil {
+                                    print("DEBUG:上傳訊息失敗 \(error?.localizedDescription ?? "")")
+                                } else {
+                                    print("DEBUG:上傳訊息成功")
+                                    uploadMessgeTotalySucuess = true
+                                }
+                               
+                            }
+                        }
+                    })
                 case .video(_):
                     print("")
                 }
@@ -424,43 +408,6 @@ extension ChatMessageKitVC: CustomInputAccessoryViewDelegate {
         let vc = CanvasVC()
         vc.delegate = self
         self.navigationController?.pushViewController(vc, animated: true)
-        /*
-         if isKeyBoardShow == true {
-         if isAddShow == false {
-         customInputView.messageInputTextView.resignFirstResponder()
-         inputAccessoryView?.heightConstraint?.constant = 250
-         inputAccessoryView?.bottomConstraint?.constant = 250
-         customInputView.bottomConstraint?.constant = 250
-         isKeyBoardShow = false
-         } else {
-         print("")
-         }
-         
-         } else {
-         if isAddShow == false { // 第一次就點ADD 還沒開啟keyboard
-         customView.backgroundColor = UIColor.black
-         //                customView.layer.zPosition = CGFloat(MAXFLOAT)
-         //                let windowCount = UIApplication.shared.windows.count
-         //                UIApplication.shared.windows[windowCount-1].addSubview(customView)
-         customInputView.messageInputTextView.resignFirstResponder()
-         let btnAdd = UIButton()
-         btnAdd.setTitle("畫貼圖", for: .normal)
-         btnAdd.backgroundColor = .systemBlue
-         btnAdd.addTarget(self, action: #selector(add(_ :)), for: .touchUpInside)
-         customView.frame = CGRect(x: 0, y: 55, width: UIScreen.WIDTH, height: 200)
-         customInputView.bottomConstraint?.constant = 250
-         customInputView.addSubview(customView)
-         customView.addSubview(btnAdd)
-         btnAdd.centerX(inView: customView)
-         btnAdd.centerY(inView: customView)
-         btnAdd.setDimensions(height: 50, width: 120)
-         isAddShow = true
-         } else {
-         customInputView.messageInputTextView.becomeFirstResponder()
-         isKeyBoardShow = true
-         isAddShow = false
-         }
-         }*/
     }
     
     @objc func add(_ sender:UIButton) {
@@ -479,13 +426,11 @@ extension ChatMessageKitVC: CustomInputAccessoryViewDelegate {
     
     // MARK: - 送出訊息
     func inputView(_ inputView: CustomInputAccessoryView, wantsToSend message: String) {
-        var contentInset:UIEdgeInsets = self.messagesCollectionView.contentInset
-        contentInset.bottom = 250
-        messagesCollectionView.contentInset = contentInset
-        //keyboardWillShow
-        UserManager.uploadMessage(message, to:otherUser!, fileName: "") { error in
+        LodingActivityIndicatorUtil.shared.showLoader(view: self.view)
+        MessageManager.shared.uploadMessage(message, to:otherUser!, fileName: "") { error in
             if error != nil {return}
         }
+        customInputView.messageInputTextView.resignFirstResponder()
         inputView.clearSendMessage()
     }
 }
@@ -512,73 +457,27 @@ extension ChatMessageKitVC {
         self.view.addSubview(vwHeader)
         self.view.addSubview(vwTop)
     }
-    
-    // MARK: - 從Firebase 取得Messages
-    func fetchMessages(completion:@escaping() -> Void) {
-        DispatchQueue.global(qos: .userInitiated).async {
-            print("This is run on a background queue")
-            UserManager.fetchNewMessage(forUser: self.otherUser!) { [weak self] (msg)  in
-                guard let self = self else { return }
-                self.messagesFirebase = msg
-                self.messages.removeAll()
-                let myGroup = DispatchGroup()
-                if let firebaseMessages = self.messagesFirebase {
-                    for i in 0..<firebaseMessages.count {
-                        myGroup.enter()
-                        if firebaseMessages[i].mssageImageUrl == "" || firebaseMessages[i].mssageImageUrl == nil { // 文字
-                            
-                            self.messages.append(MessageNew(sender: SenderNew(senderId:(firebaseMessages[i].fromID!),displayName:self.otherUser?.username ?? ""),messageId: (firebaseMessages[i].messageId)!,sentDate: (firebaseMessages[i].timestamp.dateValue()) as! Date,kind: MessageKind.text((firebaseMessages[i].text)!)))
-                            print("Finished request \(i)")
-                            myGroup.leave()
-                        } else { // 照片
-                            let ref = Storage.storage().reference(withPath: "message_images/\(firebaseMessages[i].mssageImageUrl ?? "")")
-                            ref.getData(maxSize: 1 * 1024 * 1024) { data, error in
-                                if error != nil {
-                                    print("DEBUG: 取得 Storage 圖片失敗 \(error?.localizedDescription ?? "")")
-                                } else {
-                                    let photoHeight = UIImage(data: data!)!.size.height
-                                    let photoWidth = UIImage(data: data!)!.size.width
-                                    self.messages.append(MessageNew(sender: SenderNew(senderId:(firebaseMessages[i].fromID!),displayName:self.otherUser?.username ?? ""),
-                                                                    messageId: (firebaseMessages[i].messageId)!,
-                                                                    sentDate: firebaseMessages[i].timestamp.dateValue(),
-                                                                    kind: MessageKind.photo(MediaNew(url:nil,image:UIImage(data: data!),placeholderImage:UIImage(data: data!)!,size:CGSize(width: 250, height: 250 * photoHeight / photoWidth)))))
-                                    completion()
-                                }
-                                print("Finished request \(i)")
-                                myGroup.leave()
-                            }
-                        }
-                    }
-                    myGroup.notify(queue: .main) {
-                        print("Finished all requests.")
-                        DispatchQueue.main.async { // 排序最早的在前面
-                            self.messages = self.messages.sorted(by: {$0.sentDate < $1.sentDate})
-                            self.messagesCollectionView.scrollToLastItem(at: .bottom, animated: false)
-                            LodingActivityIndicatorUtil.shared.hideLoader()
-                        }
-                    }
-                }
-            }
-        }
-    }
 }
+
 // MARK: - 點擊cell
 extension ChatMessageKitVC: MessageCellDelegate {
     
     func didTapBackground(in cell: MessageCollectionViewCell) {
-        customInputView.bottomConstraint?.constant = 55
+        print("didTapBackground")
         customInputView.messageInputTextView.resignFirstResponder()
+        //messagesCollectionView.bottomConstraint = customInputView.messageInputTextView.topAnchor
     }
     
     func didTapMessage(in cell: MessageCollectionViewCell) {
-        customInputView.bottomConstraint?.constant = 55
         customInputView.messageInputTextView.resignFirstResponder()
+       // messagesCollectionView.bottomAnchor = customInputView.messageInputTextView.topAnchor
         print("didTapMessage")
     }
     
     func didTapImage(in cell: MessageCollectionViewCell) {
-        customInputView.bottomConstraint?.constant = 55
         customInputView.messageInputTextView.resignFirstResponder()
+        //messagesCollectionView.bottomAnchor = customInputView.messageInputTextView.topAnchor
+        print("didTapImage")
         let vc = ShowMessageImageVC()
         
         if let indexPath = messagesCollectionView.indexPath(for: cell),
@@ -594,38 +493,46 @@ extension ChatMessageKitVC: MessageCellDelegate {
                 break
             }
         }
-        
         self.modalPresentationStyle = .overFullScreen
         self.present(vc, animated: true, completion: nil)
-        print("didTapImage")
+        
     }
     
+    // MARK: - 點擊頭像
     func didTapAvatar(in cell: MessageCollectionViewCell) {
         let vc = MyProfileVC()
         vc.userType = .otherUser
         vc.otherUser = otherUser
         self.modalPresentationStyle = .overFullScreen
         self.present(vc, animated: true, completion: nil)
+        vc.closureClose = { [weak self] () in
+            guard let self = self else { return }
+        }
         print("didTapAvatar")
     }
     
     func didTapCellTopLabel(in cell: MessageCollectionViewCell) {
-        
+        customInputView.messageInputTextView.resignFirstResponder()
+        print("didTapCellTopLabel")
     }
     
     func didTapCellBottomLabel(in cell: MessageCollectionViewCell) {
-        
+        customInputView.messageInputTextView.resignFirstResponder()
+        print("didTapCellBottomLabel")
     }
     
     func didTapMessageTopLabel(in cell: MessageCollectionViewCell) {
-        
+        customInputView.messageInputTextView.resignFirstResponder()
+        print("didTapMessageBottomLabel")
     }
     
     func didTapMessageBottomLabel(in cell: MessageCollectionViewCell) {
-        
+        customInputView.messageInputTextView.resignFirstResponder()
+        print("didTapMessageBottomLabel")
     }
     
     func didTapAccessoryView(in cell: MessageCollectionViewCell) {
+        customInputView.messageInputTextView.resignFirstResponder()
         print("didTapAccessoryView")
     }
     
@@ -657,18 +564,20 @@ extension ChatMessageKitVC: YPImagePickerDelegate {
     }
 }
 
+// MARK: - 傳頭貼照片
 extension ChatMessageKitVC:sendStickerDelegate {
     func sendTicker(img: UIImage) {
         let mssageImageUrl = "messageImage\(NSUUID().uuidString)"
-        self.messages.append(MessageNew(sender: SenderNew(senderId:currentUser?.uid ?? "",displayName:currentUser?.username ?? ""),
-                                        messageId: "",
-                                        sentDate: Date(),
-                                        kind:MessageKind.photo(MediaNew(url:nil,image:img,placeholderImage:img,size:CGSize(width: 200, height: 200 )))))
-        UserManager.uploadMessage("貼圖", to:self.otherUser!, fileName: mssageImageUrl) { error in
+        //        self.messages.append(Message(sender: SenderUser(senderId:currentUser?.uid ?? "",displayName:currentUser?.username ?? ""),
+        //                                        messageId: "",
+        //                                        sentDate: Date(),
+        //                                        kind:MessageKind.photo(MediaNew(url:nil,image:img,placeholderImage:img,size:CGSize(width: 200, height: 200 )))))
+        LodingActivityIndicatorUtil.shared.showLoader(view: self.view)
+        MessageManager.shared.uploadMessage("貼圖", to:self.otherUser!, fileName: mssageImageUrl) { error in
             print("DEBUG:上傳照片失敗 \(error?.localizedDescription ?? "")")
         }
         // 上傳照片到Storage
-        UserManager.uploadMessagePhoto(with: (img.jpegData(compressionQuality: 0.1))!, fileName: mssageImageUrl, completion: nil)
+        MessageManager.shared.uploadMessagePhoto(with: (img.jpegData(compressionQuality: 0.75))!, fileName: mssageImageUrl, completion: nil)
         
     }
 }

@@ -2,7 +2,7 @@
 //  Constants.swift
 //  ChatGame
 //
-//  Created by 2008007NB01 on 2021/2/8.
+//  Created by 白白 on 2021/2/8.
 //
 
 import FirebaseFirestore

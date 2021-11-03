@@ -2,68 +2,113 @@
 //  LoginVC.swift
 //  ChatFile
 //
-//  Created by 2008007NB01 on 2021/8/12.
+//  Created by 白白 on 2021/8/12.
 //
 
 import UIKit
 import FirebaseAuth
 
 
-class LoginVC: UIViewController,UITextFieldDelegate {
+class LoginVC: UIViewController {
 
     @IBOutlet weak var txtFieldEmail: UITextField!
-    @IBOutlet weak var txtFieldPassword: UITextField!
-    
     @IBOutlet weak var lbTxtFieldUp: UILabel!
     @IBOutlet weak var vwTxtFieldUp: UIView!
     @IBOutlet weak var lbEmail: UILabel!
     @IBOutlet weak var vwTestField: StyleView!
-    
-    @IBOutlet weak var vwBack: UIView!
-    @IBOutlet weak var lbPassword: UILabel!
     @IBOutlet weak var btnEnter: StyleButton!
-    var isEnteringEmail :Bool = false
     @IBOutlet weak var btnRight: StyleButton!
-    var isEnteringPass: Bool = false
     
-    var strEmail:String = ""
+    let validation = ValidationService()
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        txtFieldEmail.delegate = self
-        txtFieldPassword.delegate = self
-        
-        vwTxtFieldUp.isHidden = true
-        authenticateUser()
+        self.txtFieldEmail.delegate = self
+        self.setupUI()
+        self.fetchCurrentUser()
         let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyBoard))
         self.view.addGestureRecognizer(tap)
-        
-
-        if isEnteringPass == true {
-            vwTxtFieldUp.isHidden = true
-            vwTestField.BorderColor = #colorLiteral(red: 0.9009289145, green: 0.8999640942, blue: 0.9166941047, alpha: 1)
-            lbTxtFieldUp.textColor = #colorLiteral(red: 0.9009289145, green: 0.8999640942, blue: 0.9166941047, alpha: 1)
-            lbTxtFieldUp.text = "輸入您的密碼"
-            lbEmail.isHidden = true
-            btnEnter.setTitle("下一步", for: .normal)
-            txtFieldEmail.isHidden = true
-            btnRight.setTitle("忘記密碼？", for: .normal)
-        } else {
-            vwBack.isHidden = true
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        txtFieldEmail.text = ""// 清空
+    }
+    
+    // MARK: - UI初始化
+    func setupUI() {
+        vwTxtFieldUp.isHidden = true
+    }
+    
+    func fetchCurrentUser() {
+        LodingActivityIndicatorUtil.shared.showLoader(view: self.view)
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        UserManager.shared.fetchUser(whitUid: uid) {[weak self] user in
+            guard let self = self else { return }
+            do {
+                let encoder = JSONEncoder()
+                let data = try encoder.encode(user)
+                UserDefaultUtil.save(key: "currentUser", saveObj: data)
+            } catch {
+                print("DEBUG: Encode User 失敗")
+            }
+            MessageManager.shared.fetchImage(withFileName: user.profileImageUrl) { data in
+                if let imageData = data {
+                    UserDefaultUtil.save(key: "currentUserImage", saveObj: imageData)
+                }
+            }
+            self.authenticateUser()
         }
     }
-    func textFieldDidBeginEditing(_ textField: UITextField) {
-        if isEnteringPass == false {
-            vwTestField.BorderColor = .systemBlue
-            lbTxtFieldUp.textColor = .systemBlue
-            vwTxtFieldUp.isHidden = false
-            lbEmail.isHidden = true
-        } else  {
-            vwTestField.BorderColor = .systemBlue
-            lbPassword.isHidden = true
-            vwTxtFieldUp.isHidden = false
-            lbTxtFieldUp.textColor = .systemBlue
+    
+    // MARK: - 認證使用者是否登入，沒登入present 登入頁面
+    func authenticateUser() {
+        if Auth.auth().currentUser?.uid != nil {
+            LodingActivityIndicatorUtil.shared.showLoader(view: self.view)
+            let vc = ConversationVC()
+            self.navigationController?.pushViewController(vc, animated: true)
+            print("DEBUG: User 已登入過，直接登入")
+        } else {
+            LodingActivityIndicatorUtil.shared.hideLoader()
+            print("DEBUG: User 未登入過，須做登入")
         }
-        
+    }
+
+    // MARK: - 下一步
+    @IBAction func action_login(_ sender: UIButton) {
+        LodingActivityIndicatorUtil.shared.showLoader(view: self.view)
+        do {
+            _ = try validation.validateEamil(txtFieldEmail.text)
+            let vc = LoginEnterPassVC()
+            if let email = txtFieldEmail.text {
+                vc.strEmail = email
+            }
+            
+            self.navigationController?.pushViewController(vc, animated: true)
+        } catch {
+            AlertUtil.showMessage(vc: self, message: "\(error.localizedDescription)") { alert in
+                LodingActivityIndicatorUtil.shared.hideLoader()
+            }
+        }
+    }
+    
+    // MARK: - 註冊帳號
+    @IBAction func action_goToRegister(_ sender: Any) {
+        let vc = RegisterVC()
+        self.navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    @objc func dismissKeyBoard() {
+        self.view.endEditing(true)
+    }
+}
+
+// MARK: - UITextFieldDelegate
+extension LoginVC: UITextFieldDelegate {
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        vwTestField.BorderColor = .systemBlue
+        lbTxtFieldUp.textColor = .systemBlue
+        vwTxtFieldUp.isHidden = false
+        lbEmail.isHidden = true
     }
     
     func textFieldDidEndEditing(_ textField: UITextField) {
@@ -71,68 +116,4 @@ class LoginVC: UIViewController,UITextFieldDelegate {
         lbTxtFieldUp.textColor = #colorLiteral(red: 0.9009289145, green: 0.8999640942, blue: 0.9166941047, alpha: 1)
         
     }
-    
-    // MARK: - 認證使用者是否登入，沒登入present 登入頁面
-    func authenticateUser() {
-        if Auth.auth().currentUser?.uid != nil {
-            let vc = ConversationVC()
-            self.navigationController?.pushViewController(vc, animated: true)
-            print("DEBUG: User 已登入")
-        } else {
-            print("DEBUG: User 未登入")
-        }
-    }
-    
-    @IBAction func action_login(_ sender: UIButton) {
-        if isEnteringPass == false { // 填入email時
-            let vc = LoginVC()
-            vc.strEmail = txtFieldEmail.text ?? ""
-            vc.isEnteringPass = true
-            self.navigationController?.pushViewController(vc, animated: true)
-//            btnEnter.setTitle("下一步", for: .normal)
-//            vwTestField.isHidden = true
-            
-        } else {//     填入passworld時
-           
-            //guard let email = txtFieldEmail.text else { return }
-            guard let password = txtFieldPassword.text else { return }
-            let email = strEmail
-            LoadingUtil.showWithTitle(title: "請稍候..")
-            AuthManager.shared.logUserIn(withEmail:email,password:password) { (result, error) in
-                if error != nil {
-                    AlertUtil.showMessage(message: "登入失敗\(error?.localizedDescription ?? "")")
-                    LoadingUtil.hideView()
-                    //self.showError("email格式錯誤，密碼超過6個字，如還沒申請帳號請去下方申請！")
-                    return
-                }
-                let vc = ConversationVC()
-                
-                self.navigationController?.pushViewController(vc, animated: true)
-                LoadingUtil.hideView()
-                
-            }
-            
-        }
-
-    }
-    
-    @IBAction func action_goToRegister(_ sender: Any) {
-        if isEnteringPass == true { // 忘記密碼
-            
-        } else { // 註冊帳號
-            let vc = RegisterVC()
-            self.navigationController?.pushViewController(vc, animated: true)
-        }
-
-    }
-    
-    
-    @IBAction func action_back(_ sender: Any) {
-        self.navigationController?.popViewController(animated: true)
-    }
-    
-    @objc func dismissKeyBoard() {
-        self.view.endEditing(true)
-    }
-    
 }

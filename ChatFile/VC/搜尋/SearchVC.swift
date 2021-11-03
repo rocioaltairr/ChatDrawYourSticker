@@ -2,7 +2,7 @@
 //  SearchVC.swift
 //  ChatFile
 //
-//  Created by 2008007NB01 on 2021/9/25.
+//  Created by 白白 on 2021/9/25.
 //
 
 import UIKit
@@ -10,17 +10,12 @@ import FirebaseAuth
 import Firebase
 import FirebaseStorage
 
-
 class SearchVC: UIViewController {
-    
     @IBOutlet weak var searchBae: UISearchBar!
     @IBOutlet weak var tbv: UITableView!
     
-    var currentUser : User?
     var otherUsers = [User]()
     var newUsers = [User]()
-    
-    //var nsCache = NSCache<NSString, ImageCache>()
     var shouldShowSearchResults = false
     
     override func viewDidLoad() {
@@ -36,15 +31,14 @@ class SearchVC: UIViewController {
     // MARK: - 取得使用者資料
     func fetchUserData() {
         guard let uid = Auth.auth().currentUser?.uid else { return }
-        UserManager.fetchUser(whitUid: uid) { user in
-            self.currentUser = user
+        UserManager.shared.fetchUser(whitUid: uid) { user in
             self.fetchOtherUsers()
         }
     }
     
     // MARK: - 抓取其他使用者資料
     func fetchOtherUsers() {
-        UserManager.fetchOtherUsers { users in
+        UserManager.shared.fetchOtherUsers { users in
             self.otherUsers = users
             self.tbv.reloadData()
         }
@@ -112,9 +106,7 @@ extension SearchVC: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let cv = ChatMessageKitVC()
-        cv.currentUser = currentUser
         cv.otherUser = otherUsers[indexPath.row]
-        //cv.nsCache = self.nsCache
         self.navigationController?.pushViewController(cv, animated: true)
     }
     
@@ -137,18 +129,18 @@ extension SearchVC: UITableViewDelegate, UITableViewDataSource {
 extension SearchVC: UISearchBarDelegate, UITextFieldDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         if searchText == "" {
-            UserManager.fetchOtherUsers { users in
+            UserManager.shared.fetchOtherUsers { users in
                 self.otherUsers = users
                 self.tbv.reloadData()
             }
         } else {
-            UserManager.fetchOtherUsers { users in
+            UserManager.shared.fetchOtherUsers { users in
                 self.otherUsers = users
                 self.reload(text: searchText)
-                
             }
         }
     }
+    
     func reload(text:String) {
         newUsers.removeAll()
         for otherUser in otherUsers {

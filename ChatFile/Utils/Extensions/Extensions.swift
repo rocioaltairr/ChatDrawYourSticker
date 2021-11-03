@@ -2,13 +2,11 @@
 //  Extensions.swift
 //  ChatWithMe
 //
-//  Created by 2008007NB01 on 2021/1/28.
+//  Created by 白白 on 2021/1/28.
 //
 
 import UIKit
-import JGProgressHUD
 
-// every view componet is essentially a subclass of UI view
 extension UIView {
     func anchor(top: NSLayoutYAxisAnchor? = nil,
                 left: NSLayoutXAxisAnchor? = nil,
@@ -84,27 +82,7 @@ extension UIView {
 
 
 extension UIViewController {
-    static let hud = JGProgressHUD(style: .dark)
 
-    func configureGradientLayer() {
-        let gradient = CAGradientLayer()
-        gradient.colors = [UIColor.systemPurple.cgColor, UIColor.systemPink.cgColor]
-        gradient.locations = [0, 1]
-        view.layer.addSublayer(gradient)
-        gradient.frame = view.frame
-    }
-    
-    func showLoader(_ show: Bool, withText text: String? = "Loading") {
-        view.endEditing(true)
-        UIViewController.hud.textLabel.text = text
-        
-        if show {
-            UIViewController.hud.show(in: view)
-        } else {
-            UIViewController.hud.dismiss()
-        }
-    }
-    
     func configureNavigationBar(withTitle title: String, prefersLargeTitles: Bool) {
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
@@ -149,5 +127,65 @@ extension UIViewController {
         let alert = UIAlertController(title: "Error", message: errorMessage, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler: nil))
         present(alert, animated: true, completion: nil)
+    }
+}
+
+extension UIView {
+    func takeScreenShot() -> UIImage {
+        UIGraphicsBeginImageContextWithOptions(self.bounds.size, false, UIScreen.main.scale)
+        drawHierarchy(in: self.bounds, afterScreenUpdates: true)
+        let image = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        if image != nil{
+            return image!
+        }
+        return UIImage()
+    }
+}
+
+// MARK: - 移除陣列中重複的元素 Customed Objects
+extension Array {
+    func unique<T:Hashable>(map: ((Element) -> (T)))  -> [Element] {
+        var set = Set<T>() //the unique list kept in a Set for fast retrieval
+        var arrayOrdered = [Element]() //keeping the unique list of elements but ordered
+        for value in self {
+            if !set.contains(map(value)) {
+                set.insert(map(value))
+                arrayOrdered.append(value)
+            }
+        }
+        
+        return arrayOrdered
+    }
+}
+
+
+extension UISearchBar {
+    var textField: UITextField? {
+        if #available(iOS 13.0, *) {
+            return self.searchTextField
+        } else {
+            for view in (self.subviews[0]).subviews {
+                if let textField = view as? UITextField {
+                    return textField
+                }
+            }
+        }
+        return nil
+    }
+}
+// MARK: -grouping陣列中的元素 Customed Objects
+extension Sequence {
+    func group<GroupingType: Hashable>(by key: (Iterator.Element) -> GroupingType) -> [[Iterator.Element]] {
+        var groups: [GroupingType: [Iterator.Element]] = [:]
+        var groupsOrder: [GroupingType] = []
+        forEach { element in
+            let key = key(element)
+            if case nil = groups[key]?.append(element) {
+                groups[key] = [element]
+                groupsOrder.append(key)
+            }
+        }
+        return groupsOrder.map { groups[$0]! }
     }
 }

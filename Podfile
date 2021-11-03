@@ -2,6 +2,7 @@
 # platform :ios, '9.0'
 
 target 'ChatFile' do
+  use_frameworks!
   # Comment the next line if you don't want to use dynamic frameworks
 	pod 'Firebase'
 	pod 'Firebase/Storage'
@@ -9,7 +10,6 @@ target 'ChatFile' do
 	pod 'Firebase/Core'
 	pod 'Firebase/Firestore'
 	pod 'Firebase/Analytics'
-	pod 'JGProgressHUD'
 	pod 'SDWebImage'
   pod 'MessageKit'
   pod 'GoogleSignIn'
@@ -19,8 +19,11 @@ target 'ChatFile' do
   pod 'YPImagePicker'
   pod 'NVActivityIndicatorView'
   pod 'ISEmojiView'
-  use_frameworks!
-
+  
+  target 'ChatFileTests' do
+      inherit! :search_paths
+      pod 'Firebase'
+  end
   # Pods for ChatFile
 
 end
